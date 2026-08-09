@@ -53,9 +53,10 @@
 
   .item{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)}
   .item .body{flex:1;min-width:0}
-  .item .name{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .item .name{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;overflow-wrap:anywhere}
   .item .meta{color:var(--muted);font-size:13px;margin-top:2px;display:flex;gap:10px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
-  .badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px}
+  .item .actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+  .badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .badge.sub{background:var(--pine-soft);color:var(--pine)}
   .badge.exp{background:var(--danger-soft);color:var(--danger)}
   .badge.soon{background:var(--warn-soft);color:var(--warn)}
@@ -65,8 +66,9 @@
   .thumb .ph{color:var(--pine);opacity:.55;font-size:18px}
 
   .stepper{display:flex;align-items:center;gap:2px;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  .stepper button{border:none;background:transparent;width:34px;height:34px;font-size:19px;line-height:1;cursor:pointer;color:var(--pine);font-weight:600}
+  .stepper button{border:none;background:transparent;width:34px;height:34px;flex:0 0 auto;font-size:19px;line-height:1;cursor:pointer;color:var(--pine);font-weight:600}
   .stepper button:hover{background:var(--pine-soft)}
+  .stepper .val{min-width:0}
   .stepper .qty{min-width:52px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums;font-size:15px}
   .stepper .unit{font-size:11px;color:var(--muted);font-weight:500;text-align:center}
 
@@ -122,17 +124,81 @@
   .auth input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit;margin-bottom:12px}
   .auth .btn{width:100%;justify-content:center}
   .auth .note{font-size:12.5px;color:var(--muted);margin-top:12px;text-align:center}
+  .auth .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px}
+  .auth .btn[disabled]{opacity:.75;cursor:default}
+
+  /* Envoi du lien : chargement puis confirmation */
+  .spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite;flex:0 0 auto}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .sent{text-align:center;animation:riseIn .4s cubic-bezier(.22,.8,.3,1) both}
+  @keyframes riseIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .sent h4{font-family:"Fraunces",serif;font-weight:500;font-size:20px;margin:0 0 6px}
+  .sent .to{font-size:14px;color:var(--ink);margin:0 0 4px;overflow-wrap:anywhere}
+  .sent .hint{font-size:12.5px;color:var(--muted);margin:0}
+  .sent .again{display:flex;gap:8px;margin-top:18px}
+  .sent .again .btn{flex:1;padding:10px 12px;font-size:13.5px}
+
+  .check-wrap{position:relative;width:74px;height:74px;margin:2px auto 14px;display:grid;place-items:center}
+  .check-wrap::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--pine-soft);transform:scale(.4);opacity:0;animation:pop .5s cubic-bezier(.22,1.2,.4,1) forwards}
+  @keyframes pop{60%{opacity:1;transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
+  .check{position:relative;z-index:1;width:44px;height:44px;overflow:visible}
+  .check circle{fill:none;stroke:var(--pine);stroke-width:2;opacity:.35;stroke-dasharray:126;stroke-dashoffset:126;animation:draw .55s .1s ease forwards}
+  .check path{fill:none;stroke:var(--pine);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:34;stroke-dashoffset:34;animation:draw .35s .42s cubic-bezier(.6,.2,.3,1) forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @media(prefers-reduced-motion:reduce){
+    .sent,.check-wrap::after,.check circle,.check path{animation-duration:.01ms;animation-delay:0s}
+    .spinner{animation-duration:1.4s}
+  }
   .config-warn{background:var(--warn-soft);color:#5c4a12;border:1px solid #e6d38f;border-radius:12px;padding:16px;margin:20px auto;max-width:640px;font-size:14px;line-height:1.5}
   .config-warn code{background:#fff;padding:1px 5px;border-radius:5px}
   .hidden{display:none!important}
   .userbar{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
 
   @media(max-width:640px){
-    .stats{grid-template-columns:repeat(2,1fr)}
+    .wrap{padding:20px 14px 112px}
+    .stats{grid-template-columns:repeat(2,1fr);gap:10px}
+    .stat{padding:12px 13px}
+    .stat .v{font-size:23px}
     .brand h1{font-size:28px}
-    .item{flex-wrap:wrap}
-    .stepper{order:3}
+    header.top{align-items:stretch;gap:14px}
+    .brand{flex:1 1 100%}
+    .userbar{width:100%;justify-content:flex-start;flex-wrap:wrap}
+    .userbar .btn{flex:1;padding:10px 12px;font-size:13.5px}
     .hide-mobile{display:none}
+
+    .toolbar{gap:8px}
+    .search{flex:1 1 100%}
+    select.filter{flex:1 1 0;min-width:0}
+
+    /* Ligne produit : 2 rangées — visuel en haut, contrôles en bas */
+    .item{
+      display:grid;
+      grid-template-columns:46px minmax(0,1fr);
+      grid-template-areas:"thumb body" "actions actions";
+      align-items:center;
+      column-gap:12px;row-gap:11px;
+      padding:12px;
+    }
+    .item>.thumb{grid-area:thumb;align-self:start}
+    .item>.body{grid-area:body}
+    .item>.actions{grid-area:actions;width:100%;gap:8px}
+    .item .name{font-size:15.5px}
+    .item .meta{font-size:12.5px;gap:8px}
+    .badge{white-space:normal}
+    .actions .stepper{flex:1 1 auto;min-width:0;height:44px}
+    .actions .stepper .val{flex:1 1 auto}
+    .actions .stepper button{width:46px;height:42px;font-size:21px}
+    .actions .icon-btn{width:44px;height:44px;flex:0 0 44px}
+
+    .fab{bottom:calc(16px + env(safe-area-inset-bottom));right:14px;height:54px}
+    .overlay{padding:16px 12px 32px;align-items:flex-start}
+    .modal{padding:20px 18px 22px}
+    .footnote{margin-bottom:4px}
+  }
+  @media(max-width:430px){
+    .row{flex-direction:column;gap:0}
+    .photo-field{flex-direction:column;align-items:flex-start}
+    .photo-actions{flex-direction:row;width:100%}
   }
 </style>
 </head>
@@ -147,10 +213,28 @@
   <h1>Le Cellier</h1>
   <p>Ton stock, synchronisé sur tous tes appareils.</p>
   <div class="box">
-    <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Ton adresse e-mail</label>
-    <input id="authEmail" type="email" placeholder="prenom@exemple.com" autocomplete="email" style="margin-top:6px">
-    <button class="btn btn-primary" id="authSend">Recevoir mon lien de connexion</button>
-    <div class="note" id="authNote">On t'envoie un lien par e-mail : un clic et tu es connecté, sans mot de passe.</div>
+    <div id="authForm">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Ton adresse e-mail</label>
+      <input id="authEmail" type="email" placeholder="prenom@exemple.com" autocomplete="email" style="margin-top:6px">
+      <button class="btn btn-primary" id="authSend">Recevoir mon lien de connexion</button>
+      <div class="note" id="authNote">On t'envoie un lien par e-mail : un clic et tu es connecté, sans mot de passe.</div>
+    </div>
+
+    <div id="authSent" class="sent hidden" role="status" aria-live="polite">
+      <div class="check-wrap">
+        <svg class="check" viewBox="0 0 44 44" aria-hidden="true">
+          <circle cx="22" cy="22" r="20"/>
+          <path d="M13.5 22.5 19.5 28.5 30.5 16.5"/>
+        </svg>
+      </div>
+      <h4>Lien envoyé ✉️</h4>
+      <p class="to">Ouvre ta boîte mail : <b id="sentEmail"></b></p>
+      <p class="hint">Un seul clic sur le lien et tu es connecté. Rien reçu ? Regarde dans les spams.</p>
+      <div class="again">
+        <button class="btn btn-ghost" id="authChange">Autre adresse</button>
+        <button class="btn btn-primary" id="authResend">Renvoyer</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -384,13 +468,28 @@ async function saveItem(){
 async function deleteItem(it){
   if(!(await confirmDialog(`Supprimer « ${it.name} » du cellier ?`,{ok:"Supprimer",danger:true,title:"Supprimer le produit"})))return;
   try{
-    if(it.has_photo) await sb.storage.from("photos").remove([photoPath(it.id)]);
-    const {error}=await sb.from("products").delete().eq("id",it.id);
+    // La photo est un bonus : si son effacement échoue, on supprime quand même le produit.
+    if(it.has_photo){
+      const {error:photoErr}=await sb.storage.from("photos").remove([photoPath(it.id)]);
+      if(photoErr)console.warn("Photo non supprimée :",photoErr.message);
+    }
+    const {data,error}=await sb.from("products").delete().eq("id",it.id).select("id");
     if(error)throw error;
+    // RLS : sans droit de suppression, Supabase renvoie 0 ligne sans erreur.
+    if(!data||!data.length){
+      toast("Suppression refusée par le serveur (droits sur ce produit)");
+      await loadItems();
+      return;
+    }
     delete photoUrlCache[it.id];
+    items=items.filter(i=>i.id!==it.id);
+    render();
     toast("Produit supprimé");
     await loadItems();
-  }catch(e){console.error(e);toast("Erreur à la suppression");}
+  }catch(e){
+    console.error("Suppression:",e);
+    toast("Erreur : "+(e.message||e.hint||"suppression impossible"));
+  }
 }
 
 async function changeQty(it,delta){
@@ -430,15 +529,17 @@ function itemRow(i){
       <div class="name">${escapeHtml(i.name)} <span class="badge sub">${escapeHtml(i.subcategory||i.category||'')}</span> ${expBadge}</div>
       <div class="meta">${[wLine,expTxt,loc].filter(Boolean).join(" · ")}</div>
     </div>
-    <div class="stepper">
-      <button data-act="dec" title="Retirer 1">−</button>
-      <div><div class="qty">${i.qty}</div><div class="unit">${escapeHtml(i.unit||'')}</div></div>
-      <button data-act="inc" title="Ajouter 1">+</button>
+    <div class="actions">
+      <div class="stepper">
+        <button data-act="dec" title="Retirer 1">−</button>
+        <div class="val"><div class="qty">${i.qty}</div><div class="unit">${escapeHtml(i.unit||'')}</div></div>
+        <button data-act="inc" title="Ajouter 1">+</button>
+      </div>
+      <button class="icon-btn" data-act="edit" title="Modifier" aria-label="Modifier">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+      <button class="icon-btn del" data-act="del" title="Supprimer" aria-label="Supprimer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg></button>
     </div>
-    <button class="icon-btn" data-act="edit" title="Modifier">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-    <button class="icon-btn del" data-act="del" title="Supprimer">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg></button>
   </div>`;
 }
 
@@ -536,20 +637,67 @@ function showConfigWarning(){
     <code>SUPABASE_URL</code> et <code>SUPABASE_ANON_KEY</code> (section CONFIGURATION en haut du script).
     Voir <code>GUIDE.md</code> pour les étapes.`;
 }
-function showAuth(){$("#authScreen").classList.remove("hidden");$("#app").classList.add("hidden");$("#fab").classList.add("hidden");}
+function showAuth(){
+  $("#authScreen").classList.remove("hidden");$("#app").classList.add("hidden");$("#fab").classList.add("hidden");
+  if(!$("#authSent").classList.contains("hidden"))backToAuthForm(false);
+}
 function showApp(){
   $("#authScreen").classList.add("hidden");$("#app").classList.remove("hidden");$("#fab").classList.remove("hidden");
   $("#whoami").textContent=session?.user?.email||"";
 }
 
-async function sendMagicLink(){
-  const email=$("#authEmail").value.trim();
-  if(!email||!email.includes("@")){toast("Entre une adresse e-mail valide");return;}
-  $("#authSend").disabled=true;
+let resendTick=null;
+const SEND_LABEL="Recevoir mon lien de connexion";
+
+function setSending(btn,on,label){
+  if(on){btn.dataset.label=btn.textContent;btn.disabled=true;btn.innerHTML=`<span class="spinner"></span>${label}`;}
+  else{btn.disabled=false;btn.textContent=btn.dataset.label||label;}
+}
+
+function startResendCooldown(sec){
+  const btn=$("#authResend");
+  clearInterval(resendTick);
+  let left=sec;
+  const paint=()=>{btn.disabled=left>0;btn.textContent=left>0?`Renvoyer (${left} s)`:"Renvoyer le lien";};
+  paint();
+  resendTick=setInterval(()=>{left--;paint();if(left<=0)clearInterval(resendTick);},1000);
+}
+
+function showAuthSent(email){
+  $("#sentEmail").textContent=email;
+  $("#authForm").classList.add("hidden");
+  const s=$("#authSent");
+  s.classList.remove("hidden");
+  // relance les animations (check + apparition) même au 2e envoi
+  s.style.animation="none";s.offsetHeight;s.style.animation="";
+  const wrap=s.querySelector(".check-wrap");
+  wrap.innerHTML=wrap.innerHTML;
+  startResendCooldown(30);
+}
+
+function backToAuthForm(focus=true){
+  clearInterval(resendTick);
+  $("#authSent").classList.add("hidden");
+  $("#authForm").classList.remove("hidden");
+  $("#authNote").textContent="On t'envoie un lien par e-mail : un clic et tu es connecté, sans mot de passe.";
+  if(focus){$("#authEmail").focus();$("#authEmail").select();}
+}
+
+async function sendMagicLink(resend=false){
+  const email=(resend?$("#sentEmail").textContent:$("#authEmail").value).trim();
+  if(!email||!email.includes("@")){toast("Entre une adresse e-mail valide");$("#authEmail").focus();return;}
+  const btn=resend?$("#authResend"):$("#authSend");
+  setSending(btn,true,"Envoi en cours…");
   const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.href.split("#")[0]}});
-  $("#authSend").disabled=false;
-  if(error){toast("Erreur : "+error.message);return;}
-  $("#authNote").innerHTML=`✅ Lien envoyé à <b>${escapeHtml(email)}</b>. Ouvre ta boîte mail et clique dessus (pense aux spams).`;
+  if(error){
+    setSending(btn,false,resend?"Renvoyer le lien":SEND_LABEL);
+    toast("Erreur : "+error.message);
+    if(!resend)$("#authNote").textContent="L'envoi n'a pas abouti. Vérifie l'adresse et réessaie.";
+    return;
+  }
+  setSending(btn,false,resend?"Renvoyer le lien":SEND_LABEL);
+  toast(resend?"Nouveau lien envoyé":"Lien envoyé — vérifie ta boîte mail");
+  showAuthSent(email);
 }
 
 let realtimeReloadTimer=null;
@@ -583,8 +731,10 @@ function bindUI(){
   $("#search").oninput=render;
   $("#filterCat").onchange=render;
   $("#sortBy").onchange=render;
-  $("#authSend").onclick=sendMagicLink;
-  $("#authEmail").addEventListener("keydown",e=>{if(e.key==="Enter")sendMagicLink();});
+  $("#authSend").onclick=()=>sendMagicLink(false);
+  $("#authResend").onclick=()=>sendMagicLink(true);
+  $("#authChange").onclick=backToAuthForm;
+  $("#authEmail").addEventListener("keydown",e=>{if(e.key==="Enter")sendMagicLink(false);});
   $("#overlay").addEventListener("click",e=>{if(e.target===$("#overlay"))closeModal();});
   $("#lightbox").addEventListener("click",()=>$("#lightbox").classList.remove("open"));
   document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
