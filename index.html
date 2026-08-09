@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Cellier — Suivi de stock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EEF0EA;--card:#FBFBF8;--ink:#232C25;--muted:#79847A;--line:#DDE0D6;
+    --pine:#33513F;--pine-soft:#E6EDE6;--amber:#B0722A;--amber-soft:#F3E7D4;
+    --danger:#A83A2C;--danger-soft:#F4E0DC;--warn:#9A7A1E;--warn-soft:#F5EDD2;
+    --radius:14px;--shadow:0 1px 2px rgba(35,44,37,.05),0 8px 24px rgba(35,44,37,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:"Inter",system-ui,sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.45}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 96px}
+
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+  .brand h1{font-family:"Fraunces",serif;font-weight:500;font-size:34px;line-height:1;margin:0;letter-spacing:-.01em}
+  .brand p{margin:6px 0 0;color:var(--muted);font-size:14px}
+  .brand .mark{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);font-weight:600}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+  .stat .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+  .stat .v{font-family:"Fraunces",serif;font-size:26px;font-weight:500;margin-top:4px;font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:14px;color:var(--muted);font-family:"Inter",sans-serif;font-weight:500}
+  .stat.alert .v{color:var(--danger)}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .search{flex:1;min-width:200px;position:relative}
+  .search input{width:100%;padding:11px 12px 11px 38px;border:1px solid var(--line);border-radius:10px;background:var(--card);font:inherit;color:var(--ink)}
+  .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted)}
+  select.filter{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);font:inherit;color:var(--ink)}
+  .btn{border:none;border-radius:10px;padding:11px 16px;font:inherit;font-weight:600;cursor:pointer;transition:transform .06s ease,filter .15s ease}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--pine);color:#fff}
+  .btn-primary:hover{filter:brightness(1.08)}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+  .btn-ghost:hover{background:#fff}
+  .btn-danger{background:var(--danger);color:#fff}
+  .btn-danger:hover{filter:brightness(1.08)}
+
+  .shelf{margin-bottom:26px}
+  .shelf-head{display:flex;align-items:center;gap:10px;margin:0 2px 10px}
+  .shelf-head .dot{width:10px;height:10px;border-radius:3px}
+  .shelf-head h2{font-family:"Fraunces",serif;font-weight:500;font-size:19px;margin:0}
+  .shelf-head .tally{color:var(--muted);font-size:13px;font-weight:500;margin-left:auto;font-variant-numeric:tabular-nums}
+
+  .item{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)}
+  .item .body{flex:1;min-width:0}
+  .item .name{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .item .meta{color:var(--muted);font-size:13px;margin-top:2px;display:flex;gap:10px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+  .badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px}
+  .badge.sub{background:var(--pine-soft);color:var(--pine)}
+  .badge.exp{background:var(--danger-soft);color:var(--danger)}
+  .badge.soon{background:var(--warn-soft);color:var(--warn)}
+
+  .thumb{width:46px;height:46px;flex:0 0 46px;border-radius:10px;overflow:hidden;background:var(--pine-soft);display:grid;place-items:center;border:1px solid var(--line);cursor:pointer}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumb .ph{color:var(--pine);opacity:.55;font-size:18px}
+
+  .stepper{display:flex;align-items:center;gap:2px;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .stepper button{border:none;background:transparent;width:34px;height:34px;font-size:19px;line-height:1;cursor:pointer;color:var(--pine);font-weight:600}
+  .stepper button:hover{background:var(--pine-soft)}
+  .stepper .qty{min-width:52px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums;font-size:15px}
+  .stepper .unit{font-size:11px;color:var(--muted);font-weight:500;text-align:center}
+
+  .icon-btn{border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--muted);width:38px;height:38px;border-radius:9px;display:grid;place-items:center;transition:.12s}
+  .icon-btn:hover{background:var(--pine-soft);color:var(--pine);border-color:var(--pine-soft)}
+  .icon-btn.del{color:var(--danger)}
+  .icon-btn.del:hover{background:var(--danger-soft);color:var(--danger);border-color:var(--danger-soft)}
+
+  .lightbox{position:fixed;inset:0;background:rgba(35,44,37,.82);display:none;align-items:center;justify-content:center;padding:24px;z-index:70}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+
+  .empty{text-align:center;padding:60px 20px;color:var(--muted)}
+  .empty h3{font-family:"Fraunces",serif;font-weight:500;color:var(--ink);font-size:20px;margin:0 0 6px}
+
+  .overlay{position:fixed;inset:0;background:rgba(35,44,37,.42);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;z-index:50}
+  .overlay.open{display:flex}
+  .modal{background:var(--card);border-radius:18px;width:100%;max-width:480px;padding:22px 22px 24px;box-shadow:0 20px 60px rgba(35,44,37,.3)}
+  .modal h3{font-family:"Fraunces",serif;font-weight:500;font-size:22px;margin:0 0 16px}
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+  .field input,.field select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;font:inherit;color:var(--ink)}
+  .row{display:flex;gap:10px}
+  .row .field{flex:1}
+  .photo-field{display:flex;gap:14px;align-items:center}
+  .photo-preview{width:78px;height:78px;flex:0 0 78px;border-radius:12px;overflow:hidden;background:var(--pine-soft);border:1px solid var(--line);display:grid;place-items:center}
+  .photo-preview img{width:100%;height:100%;object-fit:cover;display:block}
+  .photo-preview span{color:var(--muted);font-size:11px;text-align:center;padding:0 6px}
+  .photo-actions{display:flex;flex-direction:column;gap:8px}
+  .photo-btn{display:inline-flex;align-items:center;gap:7px;cursor:pointer;padding:9px 14px;font-size:14px}
+  .photo-actions .btn{width:auto;padding:8px 14px;font-size:13px}
+  .modal-actions{display:flex;gap:10px;margin-top:20px}
+  .modal-actions .btn{flex:1}
+  .confirm-msg{color:var(--ink);font-size:15px;margin:0 0 4px;line-height:1.5}
+  #confirmOverlay{z-index:80}
+
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:90;max-width:90%;text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* Bouton flottant + (mobile-friendly) */
+  .fab{position:fixed;right:18px;bottom:18px;z-index:40;background:var(--pine);color:#fff;border:none;border-radius:16px;height:56px;padding:0 20px;font:inherit;font-weight:600;font-size:16px;cursor:pointer;box-shadow:0 8px 24px rgba(35,44,37,.28);display:inline-flex;align-items:center;gap:8px}
+  .fab:active{transform:translateY(1px)}
+
+  .footnote{color:var(--muted);font-size:12.5px;text-align:center;margin-top:8px}
+  .footnote a{color:var(--amber);cursor:pointer;text-decoration:none;font-weight:600}
+
+  /* Écran de connexion */
+  .auth{max-width:400px;margin:12vh auto 0;padding:0 20px;text-align:center}
+  .auth .mark{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);font-weight:600}
+  .auth h1{font-family:"Fraunces",serif;font-weight:500;font-size:40px;margin:6px 0 4px}
+  .auth p{color:var(--muted);margin:0 0 22px}
+  .auth .box{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);text-align:left}
+  .auth input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font:inherit;margin-bottom:12px}
+  .auth .btn{width:100%;justify-content:center}
+  .auth .note{font-size:12.5px;color:var(--muted);margin-top:12px;text-align:center}
+  .config-warn{background:var(--warn-soft);color:#5c4a12;border:1px solid #e6d38f;border-radius:12px;padding:16px;margin:20px auto;max-width:640px;font-size:14px;line-height:1.5}
+  .config-warn code{background:#fff;padding:1px 5px;border-radius:5px}
+  .hidden{display:none!important}
+  .userbar{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+
+  @media(max-width:640px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .brand h1{font-size:28px}
+    .item{flex-wrap:wrap}
+    .stepper{order:3}
+    .hide-mobile{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- Avertissement config -->
+<div id="configWarn" class="config-warn hidden"></div>
+
+<!-- Écran de connexion -->
+<div id="authScreen" class="auth hidden">
+  <div class="mark">Réserve · Provisions</div>
+  <h1>Le Cellier</h1>
+  <p>Ton stock, synchronisé sur tous tes appareils.</p>
+  <div class="box">
+    <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Ton adresse e-mail</label>
+    <input id="authEmail" type="email" placeholder="prenom@exemple.com" autocomplete="email" style="margin-top:6px">
+    <button class="btn btn-primary" id="authSend">Recevoir mon lien de connexion</button>
+    <div class="note" id="authNote">On t'envoie un lien par e-mail : un clic et tu es connecté, sans mot de passe.</div>
+  </div>
+</div>
+
+<!-- Application -->
+<div id="app" class="wrap hidden">
+  <header class="top">
+    <div class="brand">
+      <div class="mark">Réserve · Provisions</div>
+      <h1>Le Cellier</h1>
+      <p>Ton stock alimentaire &amp; ménager, suivi pièce par pièce.</p>
+    </div>
+    <div class="userbar">
+      <span id="whoami" class="hide-mobile"></span>
+      <button class="btn btn-ghost" id="exportBtn">Exporter CSV</button>
+      <button class="btn btn-ghost" id="logoutBtn">Se déconnecter</button>
+    </div>
+  </header>
+
+  <section class="stats" id="stats"></section>
+
+  <div class="toolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" placeholder="Rechercher un produit…">
+    </div>
+    <select class="filter" id="filterCat"><option value="">Toutes catégories</option></select>
+    <select class="filter" id="sortBy">
+      <option value="name">Trier : nom</option>
+      <option value="qty">Trier : quantité</option>
+      <option value="expiry">Trier : péremption</option>
+    </select>
+  </div>
+
+  <main id="list"></main>
+  <div class="footnote" id="syncNote">Synchronisé automatiquement via ton compte.</div>
+</div>
+
+<button class="fab hidden" id="fab" title="Ajouter un produit">＋ Ajouter</button>
+
+<!-- Modal produit -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">Ajouter un produit</h3>
+    <div class="field"><label>Nom du produit</label>
+      <input id="f-name" placeholder="Ex. Boîtes de tomates pelées" autocomplete="off"></div>
+    <div class="row">
+      <div class="field"><label>Catégorie</label><select id="f-cat"></select></div>
+      <div class="field"><label>Type / rayon</label><select id="f-sub"></select></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Quantité</label><input id="f-qty" type="number" min="0" step="1" value="1"></div>
+      <div class="field"><label>Unité</label>
+        <select id="f-unit">
+          <option>pièce</option><option>boîte</option><option>paquet</option>
+          <option>bouteille</option><option>rouleau</option>
+          <option>kg</option><option>g</option><option>L</option><option>mL</option>
+        </select></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Poids unitaire (kg) — optionnel</label><input id="f-weight" type="number" min="0" step="0.01" placeholder="0.40"></div>
+      <div class="field"><label>Péremption (DLC/DDM)</label><input id="f-expiry" type="date"></div>
+    </div>
+    <div class="field"><label>Emplacement — optionnel</label><input id="f-loc" placeholder="Ex. Cave, étagère 2" autocomplete="off"></div>
+    <div class="field">
+      <label>Photo du produit — optionnel</label>
+      <button type="button" class="btn btn-ghost" id="addPhotoBtn" style="width:100%;justify-content:center;display:inline-flex;align-items:center;gap:7px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z"/><circle cx="12" cy="13" r="4"/></svg>
+        Ajouter une photo
+      </button>
+      <div class="photo-field" id="photoBox" style="display:none">
+        <div class="photo-preview" id="photoPreview"><span>Aucune photo</span></div>
+        <div class="photo-actions">
+          <label class="btn btn-primary photo-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z"/><circle cx="12" cy="13" r="4"/></svg>
+            Prendre / choisir
+            <input type="file" accept="image/*" id="f-photo" hidden>
+          </label>
+          <button type="button" class="btn btn-ghost" id="removePhoto" style="display:none">Retirer la photo</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancelBtn">Annuler</button>
+      <button class="btn btn-primary" id="saveBtn">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt="Photo du produit"></div>
+
+<div class="overlay" id="confirmOverlay">
+  <div class="modal" style="max-width:400px">
+    <h3 id="confirmTitle">Confirmer</h3>
+    <p class="confirm-msg" id="confirmMsg"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="confirmCancel">Annuler</button>
+      <button class="btn btn-primary" id="confirmOk">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============================================================
+   1) CONFIGURATION — À REMPLIR (voir GUIDE.md)
+   ============================================================ */
+const SUPABASE_URL      = "https://yoiwtmjvkphhufugafvr.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvaXd0bWp2a3BoaHVmdWdhZnZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzMDA1MjUsImV4cCI6MjEwMTg3NjUyNX0.k8PKJKoEw1BKTdYDqAXvQ2QKnud56SflDwRUX7Qa3Ro";
+
+/* ============================================================ */
+const $=s=>document.querySelector(s);
+let sb=null, session=null, items=[], editingId=null, photoEdit;
+const photoUrlCache={};   // id -> URL signée de la photo
+
+const CATS={
+  "Alimentaire":{color:"#33513F",subs:["Conserves","Féculents (pâtes, riz…)","Eau & boissons","Épicerie sèche","Condiments & sauces","Sucré & petit-déj","Café & thé","Surgelés","Frais","Autre"]},
+  "Ménager":{color:"#B0722A",subs:["Hygiène","Nettoyage","Papier (PQ, essuie-tout)","Piles & bougies","Lessive","Autre"]}
+};
+const catColor=c=>CATS[c]?CATS[c].color:"#79847A";
+
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2200);}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function daysUntil(d){if(!d)return null;const t=new Date(d);t.setHours(0,0,0,0);const n=new Date();n.setHours(0,0,0,0);return Math.round((t-n)/86400000);}
+function photoPath(id){return `${session.user.id}/${id}.jpg`;}
+
+function confirmDialog(msg,{ok="Confirmer",danger=false,title="Confirmer"}={}){
+  return new Promise(resolve=>{
+    const ov=$("#confirmOverlay"),okBtn=$("#confirmOk"),cancelBtn=$("#confirmCancel");
+    $("#confirmTitle").textContent=title;$("#confirmMsg").textContent=msg;
+    okBtn.textContent=ok;okBtn.className="btn "+(danger?"btn-danger":"btn-primary");
+    ov.classList.add("open");
+    const close=v=>{ov.classList.remove("open");okBtn.onclick=cancelBtn.onclick=ov.onclick=null;resolve(v);};
+    okBtn.onclick=()=>close(true);cancelBtn.onclick=()=>close(false);
+    ov.onclick=e=>{if(e.target===ov)close(false);};
+  });
+}
+
+/* -------- Compression image -> Blob JPEG -------- */
+function processImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const max=520;let w=img.width,h=img.height;
+        if(w>h){if(w>max){h=Math.round(h*max/w);w=max;}}else{if(h>max){w=Math.round(w*max/h);h=max;}}
+        const c=document.createElement("canvas");c.width=w;c.height=h;
+        c.getContext("2d").drawImage(img,0,0,w,h);
+        c.toBlob(b=>b?resolve({blob:b,url:URL.createObjectURL(b)}):reject(new Error("blob")),"image/jpeg",0.72);
+      };
+      img.onerror=()=>reject(new Error("img"));img.src=reader.result;
+    };
+    reader.onerror=()=>reject(new Error("read"));reader.readAsDataURL(file);
+  });
+}
+
+/* ============================================================
+   2) DONNÉES (Supabase)
+   ============================================================ */
+async function loadItems(){
+  const {data,error}=await sb.from("products").select("*").order("name",{ascending:true});
+  if(error){toast("Erreur de chargement");console.error(error);return;}
+  items=data||[];
+  render();
+  loadPhotos();
+}
+
+async function loadPhotos(){
+  const withPhoto=items.filter(i=>i.has_photo && !photoUrlCache[i.id]);
+  if(!withPhoto.length)return;
+  const paths=withPhoto.map(i=>photoPath(i.id));
+  const {data,error}=await sb.storage.from("photos").createSignedUrls(paths,3600);
+  if(error||!data)return;
+  data.forEach((res,idx)=>{
+    if(res.signedUrl){
+      const id=withPhoto[idx].id;
+      photoUrlCache[id]=res.signedUrl;
+      const el=document.querySelector(`.item[data-id="${id}"] .thumb`);
+      if(el) el.innerHTML=`<img src="${res.signedUrl}" alt="">`;
+    }
+  });
+}
+
+async function saveItem(){
+  const name=$("#f-name").value.trim();
+  if(!name){toast("Donne un nom au produit");$("#f-name").focus();return;}
+  const payload={
+    name,
+    category:$("#f-cat").value,
+    subcategory:$("#f-sub").value,
+    qty:Math.max(0,parseInt($("#f-qty").value)||0),
+    unit:$("#f-unit").value,
+    weight:$("#f-weight").value?parseFloat($("#f-weight").value):null,
+    expiry:$("#f-expiry").value||null,
+    location:$("#f-loc").value.trim()||null,
+    updated_at:new Date().toISOString()
+  };
+  $("#saveBtn").disabled=true;
+  try{
+    let id=editingId;
+    if(editingId){
+      const {error}=await sb.from("products").update(payload).eq("id",editingId);
+      if(error)throw error;
+    }else{
+      const {data,error}=await sb.from("products").insert(payload).select("id").single();
+      if(error)throw error;
+      id=data.id;
+    }
+    // Photo
+    if(photoEdit!==undefined){
+      const path=photoPath(id);
+      if(photoEdit){
+        const up=await sb.storage.from("photos").upload(path,photoEdit.blob,{upsert:true,contentType:"image/jpeg"});
+        if(up.error)throw up.error;
+        await sb.from("products").update({has_photo:true}).eq("id",id);
+        delete photoUrlCache[id];
+      }else{
+        await sb.storage.from("photos").remove([path]);
+        await sb.from("products").update({has_photo:false}).eq("id",id);
+        delete photoUrlCache[id];
+      }
+    }
+    toast(editingId?"Produit modifié":"Produit ajouté au cellier");
+    closeModal();
+    await loadItems();
+  }catch(e){console.error(e);toast("Erreur : "+(e.message||"enregistrement"));}
+  finally{$("#saveBtn").disabled=false;}
+}
+
+async function deleteItem(it){
+  if(!(await confirmDialog(`Supprimer « ${it.name} » du cellier ?`,{ok:"Supprimer",danger:true,title:"Supprimer le produit"})))return;
+  try{
+    if(it.has_photo) await sb.storage.from("photos").remove([photoPath(it.id)]);
+    const {error}=await sb.from("products").delete().eq("id",it.id);
+    if(error)throw error;
+    delete photoUrlCache[it.id];
+    toast("Produit supprimé");
+    await loadItems();
+  }catch(e){console.error(e);toast("Erreur à la suppression");}
+}
+
+async function changeQty(it,delta){
+  const q=Math.max(0,(parseInt(it.qty)||0)+delta);
+  it.qty=q;render();  // optimiste
+  const {error}=await sb.from("products").update({qty:q,updated_at:new Date().toISOString()}).eq("id",it.id);
+  if(error){toast("Erreur de mise à jour");loadItems();}
+}
+
+/* ============================================================
+   3) RENDU
+   ============================================================ */
+function renderStats(){
+  const totalQty=items.reduce((s,i)=>s+(parseFloat(i.qty)||0),0);
+  const w=items.reduce((s,i)=>s+(parseFloat(i.weight)||0)*(parseFloat(i.qty)||0),0);
+  const expiring=items.filter(i=>{const d=daysUntil(i.expiry);return d!==null&&d<=30;}).length;
+  $("#stats").innerHTML=`
+    <div class="stat"><div class="k">Références</div><div class="v">${items.length}</div></div>
+    <div class="stat"><div class="k">Unités en stock</div><div class="v">${totalQty}</div></div>
+    <div class="stat"><div class="k">Poids total</div><div class="v">${w.toFixed(1)}<small> kg</small></div></div>
+    <div class="stat ${expiring?'alert':''}"><div class="k">À consommer &lt; 30 j</div><div class="v">${expiring}</div></div>`;
+}
+
+function itemRow(i){
+  const d=daysUntil(i.expiry);
+  let expBadge="";
+  if(d!==null){ if(d<0)expBadge=`<span class="badge exp">Périmé</span>`; else if(d<=30)expBadge=`<span class="badge soon">J-${d}</span>`; }
+  const wLine=i.weight?`≈ ${((parseFloat(i.weight)||0)*(parseFloat(i.qty)||0)).toFixed(2)} kg`:"";
+  const loc=i.location?`📍 ${escapeHtml(i.location)}`:"";
+  const expTxt=i.expiry?`⏳ ${new Date(i.expiry).toLocaleDateString('fr-FR')}`:"";
+  const thumb=photoUrlCache[i.id]
+    ? `<div class="thumb" data-act="zoom"><img src="${photoUrlCache[i.id]}" alt=""></div>`
+    : `<div class="thumb">${i.has_photo?'<span class="ph">🖼️</span>':'<span class="ph">📷</span>'}</div>`;
+  return `<div class="item" data-id="${i.id}">
+    ${thumb}
+    <div class="body">
+      <div class="name">${escapeHtml(i.name)} <span class="badge sub">${escapeHtml(i.subcategory||i.category||'')}</span> ${expBadge}</div>
+      <div class="meta">${[wLine,expTxt,loc].filter(Boolean).join(" · ")}</div>
+    </div>
+    <div class="stepper">
+      <button data-act="dec" title="Retirer 1">−</button>
+      <div><div class="qty">${i.qty}</div><div class="unit">${escapeHtml(i.unit||'')}</div></div>
+      <button data-act="inc" title="Ajouter 1">+</button>
+    </div>
+    <button class="icon-btn" data-act="edit" title="Modifier">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+    <button class="icon-btn del" data-act="del" title="Supprimer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg></button>
+  </div>`;
+}
+
+function render(){
+  renderStats();
+  const q=$("#search").value.trim().toLowerCase();
+  const fc=$("#filterCat").value;
+  const sort=$("#sortBy").value;
+  let view=items.filter(i=>{
+    const okq=!q||i.name.toLowerCase().includes(q)||(i.subcategory||"").toLowerCase().includes(q);
+    return okq&&(!fc||i.category===fc);
+  });
+  view.sort((a,b)=>{
+    if(sort==="qty")return (b.qty||0)-(a.qty||0);
+    if(sort==="expiry"){const da=daysUntil(a.expiry),db=daysUntil(b.expiry);if(da===null)return 1;if(db===null)return -1;return da-db;}
+    return String(a.name).localeCompare(String(b.name),'fr');
+  });
+  const list=$("#list");
+  if(items.length===0){list.innerHTML=`<div class="empty"><h3>Ton cellier est vide</h3><p>Ajoute ton premier produit pour commencer à bâtir ta réserve.</p></div>`;return;}
+  if(view.length===0){list.innerHTML=`<div class="empty"><p>Aucun produit ne correspond à ta recherche.</p></div>`;return;}
+  let html="";
+  for(const cat of Object.keys(CATS)){
+    const group=view.filter(i=>i.category===cat);
+    if(!group.length)continue;
+    const units=group.reduce((s,i)=>s+(parseFloat(i.qty)||0),0);
+    html+=`<section class="shelf"><div class="shelf-head"><span class="dot" style="background:${catColor(cat)}"></span>
+      <h2>${cat}</h2><span class="tally">${group.length} réf. · ${units} unités</span></div>
+      ${group.map(itemRow).join("")}</section>`;
+  }
+  // produits d'une catégorie inconnue
+  const others=view.filter(i=>!CATS[i.category]);
+  if(others.length){
+    html+=`<section class="shelf"><div class="shelf-head"><span class="dot" style="background:#79847A"></span>
+      <h2>Autre</h2><span class="tally">${others.length} réf.</span></div>${others.map(itemRow).join("")}</section>`;
+  }
+  list.innerHTML=html;
+}
+
+/* ============================================================
+   4) MODAL
+   ============================================================ */
+function fillCatSelects(){
+  const cats=Object.keys(CATS);
+  $("#f-cat").innerHTML=cats.map(c=>`<option>${c}</option>`).join("");
+  $("#filterCat").innerHTML=`<option value="">Toutes catégories</option>`+cats.map(c=>`<option>${c}</option>`).join("");
+  updateSubs();
+}
+function updateSubs(){$("#f-sub").innerHTML=CATS[$("#f-cat").value].subs.map(s=>`<option>${s}</option>`).join("");}
+function renderPhotoPreview(url){
+  const p=$("#photoPreview"),rm=$("#removePhoto");
+  if(url){p.innerHTML=`<img src="${url}" alt="Aperçu">`;rm.style.display="";}
+  else{p.innerHTML=`<span>Aucune photo</span>`;rm.style.display="none";}
+}
+function showPhotoBox(show){$("#photoBox").style.display=show?"flex":"none";$("#addPhotoBtn").style.display=show?"none":"inline-flex";}
+function openModal(item){
+  editingId=item?item.id:null;
+  $("#modalTitle").textContent=item?"Modifier le produit":"Ajouter un produit";
+  $("#f-name").value=item?.name||"";
+  $("#f-cat").value=item&&CATS[item.category]?item.category:"Alimentaire";
+  updateSubs();
+  if(item?.subcategory)$("#f-sub").value=item.subcategory;
+  $("#f-qty").value=item?.qty??1;
+  $("#f-unit").value=item?.unit||"pièce";
+  $("#f-weight").value=item?.weight??"";
+  $("#f-expiry").value=item?.expiry||"";
+  $("#f-loc").value=item?.location||"";
+  photoEdit=undefined;$("#f-photo").value="";
+  const existing=item?photoUrlCache[item.id]:null;
+  showPhotoBox(!!existing);renderPhotoPreview(existing||null);
+  $("#overlay").classList.add("open");
+  setTimeout(()=>$("#f-name").focus(),50);
+}
+function closeModal(){$("#overlay").classList.remove("open");editingId=null;}
+
+/* ============================================================
+   5) EXPORT CSV
+   ============================================================ */
+function exportCSV(){
+  if(!items.length){toast("Rien à exporter");return;}
+  const head=["Nom","Catégorie","Type","Quantité","Unité","Poids unitaire (kg)","Péremption","Emplacement","Photo"];
+  const esc=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+  const rows=items.map(i=>[i.name,i.category,i.subcategory,i.qty,i.unit,i.weight,i.expiry,i.location,i.has_photo?"oui":"non"].map(esc).join(","));
+  const csv="\uFEFF"+[head.map(esc).join(","),...rows].join("\r\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="inventaire-cellier.csv";a.click();
+  URL.revokeObjectURL(a.href);toast("Export CSV téléchargé");
+}
+
+/* ============================================================
+   6) AUTH + DÉMARRAGE
+   ============================================================ */
+function showConfigWarning(){
+  $("#configWarn").classList.remove("hidden");
+  $("#configWarn").innerHTML=`<b>⚙️ Configuration requise.</b> Ouvre <code>index.html</code> et renseigne
+    <code>SUPABASE_URL</code> et <code>SUPABASE_ANON_KEY</code> (section CONFIGURATION en haut du script).
+    Voir <code>GUIDE.md</code> pour les étapes.`;
+}
+function showAuth(){$("#authScreen").classList.remove("hidden");$("#app").classList.add("hidden");$("#fab").classList.add("hidden");}
+function showApp(){
+  $("#authScreen").classList.add("hidden");$("#app").classList.remove("hidden");$("#fab").classList.remove("hidden");
+  $("#whoami").textContent=session?.user?.email||"";
+}
+
+async function sendMagicLink(){
+  const email=$("#authEmail").value.trim();
+  if(!email||!email.includes("@")){toast("Entre une adresse e-mail valide");return;}
+  $("#authSend").disabled=true;
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.href.split("#")[0]}});
+  $("#authSend").disabled=false;
+  if(error){toast("Erreur : "+error.message);return;}
+  $("#authNote").innerHTML=`✅ Lien envoyé à <b>${escapeHtml(email)}</b>. Ouvre ta boîte mail et clique dessus (pense aux spams).`;
+}
+
+let realtimeReloadTimer=null;
+function subscribeRealtime(){
+  sb.channel("products-sync")
+    .on("postgres_changes",{event:"*",schema:"public",table:"products"},()=>{
+      clearTimeout(realtimeReloadTimer);
+      realtimeReloadTimer=setTimeout(loadItems,500);
+    })
+    .subscribe();
+}
+
+function bindUI(){
+  fillCatSelects();
+  $("#addBtnFab")&&($("#addBtnFab").onclick=()=>openModal(null));
+  $("#fab").onclick=()=>openModal(null);
+  $("#cancelBtn").onclick=closeModal;
+  $("#saveBtn").onclick=saveItem;
+  $("#exportBtn").onclick=exportCSV;
+  $("#logoutBtn").onclick=async()=>{await sb.auth.signOut();};
+  $("#f-cat").onchange=updateSubs;
+  $("#addPhotoBtn").onclick=()=>{showPhotoBox(true);$("#f-photo").click();};
+  $("#f-photo").onchange=async e=>{
+    const file=e.target.files[0];if(!file)return;
+    if(!file.type.startsWith("image/")){toast("Choisis un fichier image");return;}
+    try{const r=await processImage(file);photoEdit=r;renderPhotoPreview(r.url);}
+    catch(err){toast("Image illisible");}
+    e.target.value="";
+  };
+  $("#removePhoto").onclick=()=>{photoEdit=null;renderPhotoPreview(null);showPhotoBox(false);};
+  $("#search").oninput=render;
+  $("#filterCat").onchange=render;
+  $("#sortBy").onchange=render;
+  $("#authSend").onclick=sendMagicLink;
+  $("#authEmail").addEventListener("keydown",e=>{if(e.key==="Enter")sendMagicLink();});
+  $("#overlay").addEventListener("click",e=>{if(e.target===$("#overlay"))closeModal();});
+  $("#lightbox").addEventListener("click",()=>$("#lightbox").classList.remove("open"));
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+  $("#list").addEventListener("click",e=>{
+    const row=e.target.closest(".item");if(!row)return;
+    const id=row.dataset.id;const act=e.target.closest("[data-act]")?.dataset.act;if(!act)return;
+    const it=items.find(i=>i.id===id);if(!it)return;
+    if(act==="inc")changeQty(it,1);
+    if(act==="dec")changeQty(it,-1);
+    if(act==="edit")openModal(it);
+    if(act==="zoom"&&photoUrlCache[id]){$("#lightboxImg").src=photoUrlCache[id];$("#lightbox").classList.add("open");}
+    if(act==="del")deleteItem(it);
+  });
+}
+
+async function start(){
+  bindUI();
+  if(SUPABASE_URL.includes("VOTRE-PROJET")||SUPABASE_ANON_KEY.includes("VOTRE_CLE")){showConfigWarning();showAuth();return;}
+  if(!window.supabase){toast("Client Supabase non chargé (vérifie ta connexion)");showAuth();return;}
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  const {data}=await sb.auth.getSession();
+  session=data.session;
+  sb.auth.onAuthStateChange((_ev,s)=>{
+    session=s;
+    if(session){showApp();loadItems();subscribeRealtime();}
+    else showAuth();
+  });
+  if(session){showApp();loadItems();subscribeRealtime();}
+  else showAuth();
+}
+start();
+</script>
+</body>
+</html>
