@@ -340,6 +340,7 @@
   .qty-field input:focus{outline:none}
   .qty-field[aria-invalid="true"]{border-color:var(--danger)}
   .date-field{display:flex;gap:6px}
+  .purchase-row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:var(--s3)}
   .date-field .input{flex:1}
   .dup-hint{margin-top:8px;padding:10px 12px;border-radius:var(--r-sm);background:var(--amber-soft);color:#5a3a12;font-size:14px}
   .dup-hint p{margin:0 0 8px}
@@ -656,6 +657,16 @@
         </div>
         <p class="field-help" id="f-expiry-help">Laisse vide si le produit n'a pas de date.</p>
       </div>
+      <fieldset class="field" id="f-purchase">
+        <legend>Acheté en <span class="opt">(facultatif)</span></legend>
+        <div class="purchase-row">
+          <label for="f-pmonth" class="sr-only">Mois d'achat</label>
+          <select id="f-pmonth" class="select"></select>
+          <label for="f-pyear" class="sr-only">Année d'achat</label>
+          <select id="f-pyear" class="select" aria-describedby="f-purchase-err"></select>
+        </div>
+        <p class="field-err" id="f-purchase-err" hidden></p>
+      </fieldset>
 
       <details class="more" id="f-more">
         <summary>Plus de détails <span class="hint">poids, emplacement, photo</span><svg class="ic ic-sm" aria-hidden="true"><use href="#i-chevron"/></svg></summary>
@@ -821,7 +832,8 @@ const SORTS=[
   {value:"peremption",label:"Péremption la plus proche"},
   {value:"ajout",label:"Ajoutés récemment"},
   {value:"modif",label:"Modifiés récemment"},
-  {value:"quantite",label:"Quantité (la plus faible)"}
+  {value:"quantite",label:"Quantité (la plus faible)"},
+  {value:"achat",label:"Achetés il y a le plus longtemps"}
 ];
 
 /* ============================================================
@@ -884,6 +896,12 @@ function expiryInfo(s){
   return {level:"ok",days:d,label:t,short:t};
 }
 const isOut=it=>Number(it.qty)<=0;
+
+// Date d'achat : année obligatoire, mois facultatif (purchase_year / purchase_month).
+const MONTHS=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+const MONTHS_SHORT=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+const purchaseKey=it=>it.purchase_year?it.purchase_year*12+((it.purchase_month||1)-1):null;
+const purchaseText=it=>it.purchase_year?`${it.purchase_month?MONTHS_SHORT[it.purchase_month-1]+" ":""}${it.purchase_year}`:"";
 const familyOf=it=>CATS[it.category]?it.category:OTHER_FAMILY;
 const familySlug=f=>CATS[f]?CATS[f].slug:OTHER_FAMILY;
 const familyFromSlug=slug=>Object.keys(CATS).find(k=>CATS[k].slug===slug)||(slug===OTHER_FAMILY?OTHER_FAMILY:"");
@@ -921,6 +939,8 @@ const photoMissing=new Set();   // photos annoncées mais introuvables dans Stor
 const qtyPending=new Map();     // id -> {base, timer, inflight}
 const busyIds=new Set();        // produits en cours de suppression
 const findItem=id=>state.items.find(i=>i.id===id);
+// Colonnes purchase_* présentes en base ? null = pas encore su (aucun produit chargé).
+let purchaseSupported=null;
 const photoPath=id=>`${state.session.user.id}/${id}.jpg`;
 
 /* ============================================================
@@ -1055,6 +1075,7 @@ async function loadItems({silent=false}={}){
     return;
   }
   state.loadError=null;state.sync.failed=false;
+  if(data?.length)purchaseSupported="purchase_year" in data[0];
   // Les quantités en cours d'envoi restent celles affichées à l'écran.
   const next=(data||[]).map(row=>{
     const it=prepareItem(row);
@@ -1344,6 +1365,7 @@ function rowHtml(it){
   const meta=[];
   if(it.subcategory||it.category)meta.push(`<span>${escapeHtml(it.subcategory||it.category)}</span>`);
   if(it.location)meta.push(`<span>${ic("pin","ic-xs")}${escapeHtml(it.location)}</span>`);
+  if(it.purchase_year)meta.push(`<span>Acheté en ${escapeHtml(purchaseText(it))}</span>`);
   const q=escapeHtml(qtyText(it));
   return `<article class="row${isOut(it)?" is-out":""}" data-id="${it.id}">
     ${thumbHtml(it)}
@@ -1463,7 +1485,9 @@ function sortItems(list,sort){
       if(da===null&&db===null)return byName(a,b);if(da===null)return 1;if(db===null)return -1;return da-db||byName(a,b);},
     "ajout":(a,b)=>String(b.created_at||"").localeCompare(String(a.created_at||""))||byName(a,b),
     "modif":(a,b)=>String(b.updated_at||"").localeCompare(String(a.updated_at||""))||byName(a,b),
-    "quantite":(a,b)=>a.qty-b.qty||byName(a,b)
+    "quantite":(a,b)=>a.qty-b.qty||byName(a,b),
+    "achat":(a,b)=>{const ka=purchaseKey(a),kb=purchaseKey(b);
+      if(ka===null&&kb===null)return byName(a,b);if(ka===null)return 1;if(kb===null)return -1;return ka-kb||byName(a,b);}
   }[sort]||byName;
   return list.sort(cmp);
 }
@@ -1602,7 +1626,16 @@ function fillNameList(){
 function serializeForm(){
   const p=form.photo===undefined?"u":form.photo===null?"n":form.photo.copyFrom?"c":"b:"+form.previewUrl;
   return JSON.stringify([$("#f-name").value.trim(),selectedFamily(),$("#f-sub").value,$("#f-qty").value.trim(),$("#f-unit").value,
-    $("#f-expiry").value,$("#f-weight").value.trim(),$("#f-loc").value.trim(),p]);
+    $("#f-expiry").value,$("#f-pmonth").value,$("#f-pyear").value,$("#f-weight").value.trim(),$("#f-loc").value.trim(),p]);
+}
+function fillPurchase(year,month){
+  const now=new Date().getFullYear();
+  const years=[];for(let y=now;y>=now-15;y--)years.push(y);
+  if(year&&!years.includes(Number(year)))years.push(Number(year));
+  years.sort((a,b)=>b-a);
+  $("#f-pyear").innerHTML=optionHtml("","Année ?",!year)+years.map(y=>optionHtml(y,y,Number(year)===y)).join("");
+  $("#f-pmonth").innerHTML=optionHtml("","Mois ?",!month)+MONTHS.map((m,i)=>optionHtml(i+1,m.charAt(0).toUpperCase()+m.slice(1),Number(month)===i+1)).join("");
+  $("#f-purchase").hidden=purchaseSupported===false;
 }
 function revokePreview(){if(form.previewUrl){URL.revokeObjectURL(form.previewUrl);form.previewUrl=null;}}
 
@@ -1648,6 +1681,7 @@ function clearFormErrors(){
   setFieldError($("#f-name"),$("#f-name-err"),"");
   setFieldError($("#f-qty"),$("#f-qty-err"),"",$("#f-qty-wrap"));
   setFieldError($("#f-weight"),$("#f-weight-err"),"");
+  setFieldError($("#f-pyear"),$("#f-purchase-err"),"");
   showFormError("");setPhotoHelp("");
 }
 
@@ -1666,6 +1700,10 @@ function openProductForm(item=null,mode=item?"edit":"add"){
   $("#f-qty").value=inputNum(item?item.qty:1);
   fillUnits(item?item.unit:"pièce");
   $("#f-expiry").value=mode==="dup"?"":(item?.expiry||"");
+  // Nouveau produit ou nouveau lot : acheté ce mois-ci par défaut.
+  const today=new Date();
+  if(mode==="edit")fillPurchase(item.purchase_year,item.purchase_month);
+  else fillPurchase(today.getFullYear(),today.getMonth()+1);
   $("#f-weight").value=inputNum(item?.weight);
   $("#f-loc").value=item?.location||"";
   $("#f-more").open=!!(item&&(item.weight||item.location||item.has_photo));
@@ -1706,15 +1744,32 @@ function readForm(){
   const weight=wRaw?parseDecimal(wRaw):null;
   const invalid=[];
   if(!name){setFieldError($("#f-name"),$("#f-name-err"),"Donne un nom au produit.");invalid.push($("#f-name"));}
-  if(!family){showFormError("Choisis une famille : Alimentaire ou Ménager.");invalid.push($("#f-family input"));}
+  if(!family){showFormError("Choisis une famille : Alimentaire, Hygiène corporelle ou Ménager.");invalid.push($("#f-family input"));}
+  const pYear=Number($("#f-pyear").value)||null,pMonth=Number($("#f-pmonth").value)||null;
+  if(pMonth&&!pYear){setFieldError($("#f-pyear"),$("#f-purchase-err"),"Choisis aussi l'année d'achat.");invalid.push($("#f-pyear"));}
   if(qty===null){setFieldError($("#f-qty"),$("#f-qty-err"),"Indique une quantité : 0 ou plus (ex. 2 ou 1,5).",$("#f-qty-wrap"));invalid.push($("#f-qty"));}
   if(wRaw&&weight===null){$("#f-more").open=true;setFieldError($("#f-weight"),$("#f-weight-err"),"Indique un poids en kg (ex. 0,4) ou laisse vide.");invalid.push($("#f-weight"));}
   if(invalid.length){invalid[0]?.focus();return null;}
-  return {
+  const values={
     name,category:family,subcategory:$("#f-sub").value||null,qty:roundQty(qty),unit:$("#f-unit").value||null,
     weight,expiry:$("#f-expiry").value||null,location:$("#f-loc").value.trim()||null,
     updated_at:new Date().toISOString()
   };
+  if(purchaseSupported!==false){values.purchase_year=pYear;values.purchase_month=pYear?pMonth:null;}
+  return values;
+}
+
+// Écrit le produit. Si la base n'a pas encore les colonnes d'achat, on réessaie sans elles.
+async function writeProduct(values,id){
+  const run=v=>id?sb.from("products").update(v).eq("id",id).select("*"):sb.from("products").insert(v).select("*");
+  let {data,error}=await run(values);
+  if(error&&error.code==="PGRST204"&&/purchase_/.test(error.message||"")){
+    console.warn("Colonnes d'achat absentes : exécute supabase/2026-09-17_date_achat.sql");
+    purchaseSupported=false;$("#f-purchase").hidden=true;
+    const {purchase_year,purchase_month,...rest}=values;
+    ({data,error}=await run(rest));
+  }
+  return {data,error};
 }
 
 async function saveProduct(addAnother=false){
@@ -1727,14 +1782,15 @@ async function saveProduct(addAnother=false){
     let row;
     if(wasEdit){
       cancelQty(form.id);
-      const {data,error}=await sb.from("products").update(values).eq("id",form.id).select("*");
+      const {data,error}=await writeProduct(values,form.id);
       if(error)throw error;
       if(!data?.length)throw Object.assign(new Error("introuvable"),{userMessage:"Ce produit n'existe plus : il a peut-être été supprimé depuis un autre appareil."});
       row=data[0];
     }else{
-      const {data,error}=await sb.from("products").insert(values).select("*").single();
+      const {data,error}=await writeProduct(values);
       if(error)throw error;
-      row=data;
+      if(!data?.length)throw new Error("Insertion sans retour");
+      row=data[0];
       form.mode="edit";form.id=row.id;   // le produit existe : un nouvel essai ne crée pas de doublon
     }
     upsertLocal(row);
@@ -1936,13 +1992,15 @@ function route({fromUser=true}={}){
    ============================================================ */
 function exportCSV(){
   if(!state.items.length){toast("Ton stock est vide : rien à exporter.");return;}
-  const head=["Nom","Famille","Type","Quantité","Unité","Poids unitaire (kg)","Péremption","Emplacement","Photo","Ajouté le","Modifié le"];
+  const head=["Nom","Famille","Type","Quantité","Unité","Poids unitaire (kg)","Péremption","Acheté en","Emplacement","Photo","Ajouté le","Modifié le"];
   const esc=v=>`"${String(v??"").replace(/"/g,'""')}"`;
   const dec=v=>v===null||v===undefined||v===""?"":String(v).replace(".",",");
   const dt=v=>v?new Date(v).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"}):"";
   const rows=sortItems([...state.items],"nom").map(i=>[
     i.name,i.category,i.subcategory,dec(i.qty),i.unit,dec(i.weight),
-    i.expiry?parseLocalDate(i.expiry).toLocaleDateString("fr-FR"):"",i.location,i.has_photo?"oui":"non",
+    i.expiry?parseLocalDate(i.expiry).toLocaleDateString("fr-FR"):"",
+    i.purchase_year?(i.purchase_month?`${String(i.purchase_month).padStart(2,"0")}/${i.purchase_year}`:String(i.purchase_year)):"",
+    i.location,i.has_photo?"oui":"non",
     dt(i.created_at),dt(i.updated_at)
   ].map(esc).join(";"));
   const csv="﻿"+[head.map(esc).join(";"),...rows].join("\r\n");
@@ -2258,6 +2316,7 @@ function bindUI(){
     input.dispatchEvent(new Event("input",{bubbles:true}));
   });
   $("#f-qty").addEventListener("input",e=>{if(parseDecimal(e.target.value)!==null)setFieldError(e.target,$("#f-qty-err"),"",$("#f-qty-wrap"));});
+  $("#f-pyear").addEventListener("change",e=>{if(e.target.value)setFieldError(e.target,$("#f-purchase-err"),"");});
   $("#f-expiry").addEventListener("input",updateExpiryHelp);
   $("#f-expiry").addEventListener("change",updateExpiryHelp);
   $("#f-expiry-clear").addEventListener("click",()=>{$("#f-expiry").value="";updateExpiryHelp();$("#f-expiry").focus();});
