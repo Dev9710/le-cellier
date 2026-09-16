@@ -214,8 +214,9 @@
   .row.is-out .thumb{opacity:.6}
 
   .thumb{width:44px;height:44px;border-radius:var(--r-sm);overflow:hidden;display:grid;place-items:center;border:1px solid var(--line);background:var(--pine-soft);color:var(--pine);font-family:"Fraunces",serif;font-size:19px;padding:0}
+  .thumb.fam-hygiene{background:#E2EAED;color:#3B5763}
   .thumb.fam-menager{background:var(--amber-soft);color:var(--amber-ink)}
-  .thumb.fam-autre{background:var(--sunk);color:var(--ink-2)}
+  .thumb.fam-autres{background:var(--sunk);color:var(--ink-2)}
   .thumb img{width:100%;height:100%;object-fit:cover;display:block}
   button.thumb{cursor:zoom-in}
   .thumb.is-loading{background:var(--sunk)}
@@ -700,9 +701,11 @@ const SUPABASE_URL      = "https://yoiwtmjvkphhufugafvr.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvaXd0bWp2a3BoaHVmdWdhZnZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzMDA1MjUsImV4cCI6MjEwMTg3NjUyNX0.k8PKJKoEw1BKTdYDqAXvQ2QKnud56SflDwRUX7Qa3Ro";
 
 // Familles et types : ces libellés sont stockés tels quels en base, ne pas les renommer sans migration.
+// short : libellé court pour les boutons de filtre.
 const CATS={
-  "Alimentaire":{slug:"alimentaire",color:"#33513F",subs:["Conserves","Féculents (pâtes, riz…)","Eau & boissons","Épicerie sèche","Condiments & sauces","Sucré & petit-déj","Café & thé","Surgelés","Frais","Autre"]},
-  "Ménager":{slug:"menager",color:"#B0722A",subs:["Hygiène","Nettoyage","Papier (PQ, essuie-tout)","Piles & bougies","Lessive","Autre"]}
+  "Alimentaire":{slug:"alimentaire",short:"Alimentaire",color:"#33513F",subs:["Conserves","Féculents (pâtes, riz…)","Eau & boissons","Épicerie sèche","Condiments & sauces","Sucré & petit-déj","Café & thé","Surgelés","Frais","Autre"]},
+  "Hygiène corporelle":{slug:"hygiene",short:"Hygiène",color:"#4A6B78",subs:["Douche & bain","Cheveux","Soins dentaires","Déodorants","Rasage & épilation","Soins de la peau","Protections hygiéniques","Autre"]},
+  "Ménager":{slug:"menager",short:"Ménager",color:"#B0722A",subs:["Nettoyage","Papier (PQ, essuie-tout)","Piles & bougies","Lessive","Autre"]}
 };
 const OTHER_FAMILY="autres";   // regroupe les catégories absentes de CATS
 const UNITS=["pièce","boîte","paquet","bouteille","rouleau","kg","g","L","mL"];
@@ -798,6 +801,7 @@ const familyOf=it=>CATS[it.category]?it.category:OTHER_FAMILY;
 const familySlug=f=>CATS[f]?CATS[f].slug:OTHER_FAMILY;
 const familyFromSlug=slug=>Object.keys(CATS).find(k=>CATS[k].slug===slug)||(slug===OTHER_FAMILY?OTHER_FAMILY:"");
 const familyLabel=f=>f===OTHER_FAMILY?"Autres":f;
+const familyShort=f=>CATS[f]?CATS[f].short:familyLabel(f);
 const familyColor=f=>CATS[f]?CATS[f].color:"#5E6A60";
 
 // Messages d'erreur compréhensibles ; le détail technique reste dans la console.
@@ -1244,7 +1248,7 @@ function thumbHtml(it,interactive=true){
   if(url&&!interactive)return `<div class="thumb" aria-hidden="true"><img src="${escapeHtml(url)}" alt="" data-photo="${it.id}" loading="lazy" width="44" height="44"></div>`;
   if(url)return `<button type="button" class="thumb" data-act="zoom" data-key="${it.id}:zoom" aria-label="Agrandir la photo de ${name}"><img src="${escapeHtml(url)}" alt="" data-photo="${it.id}" loading="lazy" width="44" height="44"></button>`;
   if(it.has_photo&&!photoMissing.has(it.id))return `<div class="thumb is-loading" aria-hidden="true"></div>`;
-  const fam=familyOf(it)==="Ménager"?"fam-menager":familyOf(it)===OTHER_FAMILY?"fam-autre":"";
+  const fam=`fam-${familySlug(familyOf(it))}`;
   const letter=escapeHtml((String(it.name).trim()[0]||"?").toUpperCase());
   return `<div class="thumb ${fam}" aria-hidden="true">${letter}</div>`;
 }
@@ -1379,7 +1383,7 @@ function sortItems(list,sort){
 
 function renderFamilySeg(){
   const c=counts();
-  const opts=[{value:"",label:"Tout",n:c.total},...familiesPresent(c).map(f=>({value:f,label:familyLabel(f),n:c.families[f]||0}))];
+  const opts=[{value:"",label:"Tout",n:c.total},...familiesPresent(c).map(f=>({value:f,label:familyShort(f),n:c.families[f]||0}))];
   $("#familySeg").innerHTML=opts.map(o=>`<label><input type="radio" name="family" value="${escapeHtml(o.value)}" data-key="fam:${escapeHtml(o.value)}"${state.stock.family===o.value?" checked":""}>${escapeHtml(o.label)}</label>`).join("");
 }
 
