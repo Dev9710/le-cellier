@@ -92,22 +92,63 @@
   .dot{width:9px;height:9px;border-radius:3px;flex:0 0 auto}
 
   /* ---------- Écran de connexion ---------- */
-  .auth{max-width:420px;margin:10vh auto 0;padding:0 20px 40px;text-align:center}
-  .eyebrow{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber-ink);font-weight:600}
-  .auth h1{font-size:40px;margin:6px 0 4px}
-  .auth .lead{color:var(--muted);margin:0 0 22px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1)}
-  .auth .card{padding:22px;text-align:left}
-  .auth .btn{width:100%;margin-top:4px}
+  .auth{position:relative;min-height:100dvh;isolation:isolate;
+    background:
+      radial-gradient(56rem 36rem at -12% -8%,rgba(51,81,63,.11),transparent 62%),
+      radial-gradient(48rem 34rem at 112% 108%,rgba(176,114,42,.13),transparent 60%),
+      var(--paper)}
+  /* grain papier très léger */
+  .auth::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.45;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .14 0 0 0 0 .17 0 0 0 0 .15 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .auth-shell{display:grid;min-height:100dvh}
+  .auth-art{display:none}
+  .auth-panel{display:flex;align-items:center;justify-content:center;padding:max(28px,6vh) 20px calc(28px + var(--safe-b))}
+  .auth-card{width:100%;max-width:400px}
+  .auth-card>*{animation:riseIn .55s var(--ease) both}
+  .auth-card>:nth-child(2){animation-delay:.04s}
+  .auth-card>:nth-child(3){animation-delay:.08s}
+  .auth-card>:nth-child(4){animation-delay:.12s}
+  .auth-card>:nth-child(5){animation-delay:.18s}
+  .auth-card>:nth-child(6){animation-delay:.24s}
+  .auth-mark{width:56px;height:56px;margin:0 0 22px;border-radius:16px;display:grid;place-items:center;background:var(--pine);color:#F1E7D6;box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 10px 26px rgba(51,81,63,.3)}
+  .auth-mark svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .eyebrow{font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber-ink);font-weight:600;margin:0}
+  .auth h1{font-size:46px;line-height:1;margin:8px 0 12px;font-weight:500}
+  .auth .lead{color:var(--ink-2);font-size:16.5px;margin:0 0 26px;max-width:32ch}
+  .auth-box{padding:22px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:0 1px 2px rgba(35,44,37,.05),0 14px 36px rgba(35,44,37,.08)}
+  .auth-input{position:relative}
+  .auth-input .ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+  .auth-input .input{min-height:52px;padding-left:46px;border-radius:var(--r-md);font-size:17px}
+  .btn-lg{min-height:52px;border-radius:var(--r-md);font-size:16px}
+  .auth-suggest{margin:8px 0 0;font-size:14.5px;color:var(--ink-2)}
+  .auth-suggest button{border:none;background:none;padding:4px 2px;color:var(--pine);font-weight:600;text-decoration:underline;text-underline-offset:3px}
   .note{font-size:13.5px;color:var(--muted);margin:12px 0 0;text-align:center}
   .note.is-error{color:var(--danger);font-weight:500}
+  .auth-foot{display:flex;align-items:center;justify-content:center;gap:7px;margin:18px 0 0;font-size:13.5px;color:var(--muted)}
   .sent{text-align:center;animation:riseIn .4s var(--ease) both}
   @keyframes riseIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-  .sent h2{font-size:21px;margin:0 0 6px}
-  .sent .to{font-size:14.5px;margin:0 0 4px;overflow-wrap:anywhere}
-  .sent .hint{font-size:13.5px;color:var(--muted);margin:0}
-  .sent .again{display:flex;gap:8px;margin-top:18px}
-  .sent .again .btn{flex:1;font-size:14px;padding-inline:10px}
+  .sent h2{font-size:23px;margin:0 0 6px}
+  .sent h2:focus{outline:none}
+  .sent .to{font-size:15px;margin:0 0 16px;overflow-wrap:anywhere;color:var(--ink-2)}
+  .sent .to b{color:var(--ink)}
+  .steps{list-style:none;counter-reset:step;margin:16px 0 0;padding:0;display:grid;gap:10px;text-align:left}
+  .steps li{counter-increment:step;display:flex;gap:12px;align-items:flex-start;font-size:14.5px;color:var(--ink-2)}
+  .steps li::before{content:counter(step);flex:0 0 24px;height:24px;margin-top:1px;border-radius:50%;display:grid;place-items:center;background:var(--pine-soft);color:var(--pine);font-weight:600;font-size:13px}
+  .sent .again{display:flex;gap:8px;justify-content:space-between;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)}
+  .sent .again .btn{font-size:14.5px}
+  @media (min-width:900px){
+    .auth-shell{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+    .auth-art{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:32px;padding:44px 52px;overflow:hidden;color:#EFE6D6;
+      background:radial-gradient(40rem 30rem at 20% 0%,rgba(255,255,255,.07),transparent 60%),var(--pine)}
+    .art-brand{font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:#D9A25E}
+    .art-shelves{width:100%;max-width:470px;align-self:center;opacity:.92}
+    .art-shelves .accent{stroke:#D9A25E}
+    .art-quote{margin:0;font-family:"Fraunces",serif;font-size:clamp(28px,2.6vw,38px);line-height:1.18;letter-spacing:-.01em}
+    .auth-panel{padding:48px}
+    .auth-card .auth-mark,.auth-card .eyebrow{display:none}
+    .auth h1{font-size:40px}
+  }
   .check-wrap{position:relative;width:74px;height:74px;margin:2px auto 14px;display:grid;place-items:center}
   .check-wrap::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--pine-soft);transform:scale(.4);opacity:0;animation:pop .5s cubic-bezier(.22,1.2,.4,1) forwards}
   @keyframes pop{60%{opacity:1;transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
@@ -403,6 +444,9 @@
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
   <symbol id="i-empty" viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol>
 </svg>
 
@@ -410,31 +454,74 @@
 
 <!-- ============ Connexion ============ -->
 <div id="authScreen" class="auth" hidden>
-  <div class="eyebrow">Réserve · Provisions</div>
-  <h1>Le Cellier</h1>
-  <p class="lead">Ton stock, synchronisé sur tous tes appareils.</p>
-  <div class="card">
-    <form id="authForm" novalidate>
-      <div class="field">
-        <label for="authEmail">Ton adresse e-mail</label>
-        <input id="authEmail" class="input" type="email" inputmode="email" placeholder="prenom@exemple.com" autocomplete="email" enterkeyhint="send" required>
-      </div>
-      <button class="btn btn-primary" id="authSend" type="submit">Recevoir mon lien de connexion</button>
-      <p class="note" id="authNote" role="status" aria-live="polite">On t'envoie un lien par e-mail : un clic et tu es connecté, sans mot de passe.</p>
-    </form>
+  <div class="auth-shell">
+    <!-- Panneau illustré (grand écran uniquement) -->
+    <aside class="auth-art" aria-hidden="true">
+      <div class="art-brand">Réserve · Provisions</div>
+      <svg class="art-shelves" viewBox="0 0 420 320" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 150H410"/><path d="M34 150v12M386 150v12"/>
+        <rect x="42" y="62" width="44" height="10" rx="3"/>
+        <path d="M46 72h36v6c8 4 12 10 12 18v42a12 12 0 0 1-12 12H46a12 12 0 0 1-12-12V96c0-8 4-14 12-18z"/>
+        <path class="accent" d="M34 104h60M34 126h60"/>
+        <path d="M122 150V94c0-8 7-13 7-21V48h14v25c0 8 7 13 7 21v56z"/><path class="accent" d="M122 106h28"/>
+        <rect x="176" y="70" width="64" height="80" rx="4"/><path class="accent" d="M188 90h40M188 102h26"/>
+        <ellipse cx="290" cy="86" rx="24" ry="6"/><path d="M266 86v26a24 6 0 0 0 48 0V86"/>
+        <path d="M266 118v26a24 6 0 0 0 48 0v-26"/><path class="accent" d="M266 128a24 6 0 0 0 48 0"/>
+        <circle cx="364" cy="126" r="22"/><circle cx="364" cy="126" r="7"/>
+        <path d="M10 290H410"/><path d="M34 290v12M386 290v12"/>
+        <path d="M52 290v-60a10 10 0 0 1 10-10h24a10 10 0 0 1 10 10v60"/><path d="M66 220v-14h16v14"/><path d="M74 206v-10h18"/><path class="accent" d="M52 250h44"/>
+        <rect x="126" y="238" width="52" height="52" rx="9"/><rect x="132" y="228" width="40" height="10" rx="3"/><path class="accent" d="M126 260h52"/>
+        <rect x="194" y="250" width="40" height="40" rx="8"/><rect x="199" y="242" width="30" height="8" rx="3"/>
+        <path d="M256 290l6-76h58l6 76z"/><path class="accent" d="M264 230h54"/>
+        <rect x="344" y="246" width="50" height="44" rx="6"/><path d="M354 262h30M354 274h20"/>
+      </svg>
+      <p class="art-quote">Ce que tu as.<br>Ce qui presse.<br>Ce qui manque.</p>
+    </aside>
 
-    <div id="authSent" class="sent" role="status" aria-live="polite" hidden>
-      <div class="check-wrap">
-        <svg class="check" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"/><path d="M13.5 22.5 19.5 28.5 30.5 16.5"/></svg>
+    <main class="auth-panel">
+      <div class="auth-card">
+        <div class="auth-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><rect x="10" y="3.5" width="12" height="4" rx="1.5"/><path d="M11 7.5h10v2.5c3 1.5 4.5 4 4.5 7v8a3.5 3.5 0 0 1-3.5 3.5H10A3.5 3.5 0 0 1 6.5 25v-8c0-3 1.5-5.5 4.5-7z"/><path d="M6.5 17.5h19M6.5 23h19"/></svg>
+        </div>
+        <p class="eyebrow">Réserve · Provisions</p>
+        <h1>Le Cellier</h1>
+        <p class="lead">Ton stock alimentaire, hygiène et ménager, synchronisé sur tous tes appareils.</p>
+
+        <div class="auth-box">
+          <form id="authForm" novalidate>
+            <div class="field">
+              <label for="authEmail">Ton adresse e-mail</label>
+              <div class="auth-input">
+                <svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg>
+                <input id="authEmail" class="input" type="email" inputmode="email" placeholder="prenom@exemple.com" autocomplete="email" autocapitalize="none" spellcheck="false" enterkeyhint="send" aria-describedby="authNote" required>
+              </div>
+              <p class="auth-suggest" id="authSuggest" hidden></p>
+            </div>
+            <button class="btn btn-primary btn-lg btn-block" id="authSend" type="submit">Recevoir mon lien de connexion</button>
+            <p class="note" id="authNote" role="status" aria-live="polite">Pas de mot de passe : on t'envoie un lien, un clic et tu es connecté.</p>
+          </form>
+
+          <div id="authSent" class="sent" hidden>
+            <div class="check-wrap">
+              <svg class="check" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20"/><path d="M13.5 22.5 19.5 28.5 30.5 16.5"/></svg>
+            </div>
+            <h2 id="sentTitle" tabindex="-1">Vérifie ta boîte mail</h2>
+            <p class="to">Lien envoyé à <b id="sentEmail"></b></p>
+            <a class="btn btn-ghost btn-block" id="openMail" href="#" target="_blank" rel="noopener" hidden></a>
+            <ol class="steps">
+              <li><span>Ouvre l'e-mail de connexion. Rien reçu d'ici 2 minutes ? Regarde dans les spams.</span></li>
+              <li><span>Touche le lien <strong>sur cet appareil</strong> : c'est lui qui sera connecté.</span></li>
+            </ol>
+            <div class="again">
+              <button class="btn btn-text" id="authChange" type="button">Autre adresse</button>
+              <button class="btn btn-ghost" id="authResend" type="button">Renvoyer</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="auth-foot"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-lock"/></svg>Tes données ne sont visibles que par toi.</p>
       </div>
-      <h2>Lien envoyé</h2>
-      <p class="to">Ouvre ta boîte mail : <b id="sentEmail"></b></p>
-      <p class="hint">Un seul clic sur le lien et tu es connecté. Rien reçu ? Regarde dans les spams.</p>
-      <div class="again">
-        <button class="btn btn-ghost" id="authChange" type="button">Autre adresse</button>
-        <button class="btn btn-primary" id="authResend" type="button">Renvoyer</button>
-      </div>
-    </div>
+    </main>
   </div>
 </div>
 
@@ -1870,9 +1957,62 @@ function exportCSV(){
    6) AUTHENTIFICATION ET DÉMARRAGE
    ============================================================ */
 const SEND_LABEL="Recevoir mon lien de connexion";
-const AUTH_NOTE="On t'envoie un lien par e-mail : un clic et tu es connecté, sans mot de passe.";
-const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-let authReady=false, resendTick=null;
+const AUTH_NOTE="Pas de mot de passe : on t'envoie un lien, un clic et tu es connecté.";
+const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const RESEND_DELAY=30;                 // secondes avant de pouvoir renvoyer un lien
+const LINK_PENDING_MAX=15*60*1000;     // l'écran « lien envoyé » est restauré pendant 15 min
+const LS_LAST_EMAIL="lc:lastEmail", LS_LINK_SENT="lc:linkSent";
+let authReady=false, resendTick=null, suggestionDismissedFor="";
+
+// localStorage peut être indisponible (navigation privée) : jamais bloquant.
+const store={
+  get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}},
+  del(k){try{localStorage.removeItem(k);}catch{}}
+};
+
+// Fautes de frappe fréquentes sur le domaine (gmial.com, hotmail.fe…)
+const COMMON_DOMAINS=["gmail.com","hotmail.com","hotmail.fr","outlook.com","outlook.fr","live.fr","live.com","yahoo.com","yahoo.fr",
+  "icloud.com","me.com","orange.fr","wanadoo.fr","free.fr","sfr.fr","laposte.net","bbox.fr","numericable.fr","protonmail.com","proton.me","gmx.fr"];
+function editDistance(a,b){
+  const d=Array.from({length:a.length+1},(_,i)=>[i,...Array(b.length).fill(0)]);
+  for(let j=1;j<=b.length;j++)d[0][j]=j;
+  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return d[a.length][b.length];
+}
+function suggestEmail(email){
+  const at=email.lastIndexOf("@");if(at<1)return null;
+  const domain=email.slice(at+1).toLowerCase();
+  if(!domain||COMMON_DOMAINS.includes(domain))return null;
+  let best=null,bestD=3;
+  for(const c of COMMON_DOMAINS){const dist=editDistance(domain,c);if(dist<bestD){best=c;bestD=dist;}}
+  return best&&bestD<=2?`${email.slice(0,at)}@${best}`:null;
+}
+// Raccourci vers la messagerie web correspondant à l'adresse.
+function mailboxFor(email){
+  const domain=email.split("@")[1]?.toLowerCase()||"";
+  const map=[
+    [/^(gmail|googlemail)\.com$/,"Gmail","https://mail.google.com/mail/u/0/#inbox"],
+    [/^(outlook|hotmail|live|msn)\.[a-z.]+$/,"Outlook","https://outlook.live.com/mail/"],
+    [/^yahoo\.[a-z.]+$/,"Yahoo Mail","https://mail.yahoo.com/"],
+    [/^(icloud|me|mac)\.com$/,"iCloud Mail","https://www.icloud.com/mail"],
+    [/^(orange|wanadoo)\.fr$/,"la messagerie Orange","https://messagerie.orange.fr/"],
+    [/^free\.fr$/,"la messagerie Free","https://webmail.free.fr/"],
+    [/^sfr\.fr$/,"la messagerie SFR","https://webmail.sfr.fr/"],
+    [/^laposte\.net$/,"La Poste Mail","https://www.laposte.net/accueil"],
+    [/^(proton\.me|protonmail\.com)$/,"Proton Mail","https://mail.proton.me/"]
+  ];
+  const hit=map.find(([re])=>re.test(domain));
+  return hit?{label:hit[1],url:hit[2]}:null;
+}
+function renderSuggestion(email){
+  const box=$("#authSuggest");
+  const s=email&&email!==suggestionDismissedFor?suggestEmail(email):null;
+  box.hidden=!s;
+  box.innerHTML=s?`Tu voulais dire <button type="button" data-suggest="${escapeHtml(s)}">${escapeHtml(s)}</button> ?`:"";
+  return s;
+}
 
 function showConfigWarning(){
   const w=$("#configWarn");w.hidden=false;
@@ -1886,6 +2026,7 @@ function readAuthHashError(){
   if(!/(^|&)error(_code)?=/.test(raw))return null;
   const code=new URLSearchParams(raw).get("error_code");
   history.replaceState(null,"",location.pathname+location.search);
+  store.del(LS_LINK_SENT);   // afficher le formulaire et l'erreur, pas l'écran « lien envoyé »
   return code==="otp_expired"
     ?"Ce lien de connexion a expiré ou a déjà servi. Demande un nouveau lien."
     :"La connexion n'a pas abouti. Demande un nouveau lien.";
@@ -1901,7 +2042,17 @@ function authErrorMessage(error){
 function showAuth(){
   $("#app").hidden=true;$("#fab").hidden=true;$("#authScreen").hidden=false;
   document.title="Le Cellier — Connexion";
-  if(!$("#authSent").hidden)backToAuthForm(false);
+  const input=$("#authEmail");
+  if(!input.value)input.value=store.get(LS_LAST_EMAIL)||"";
+  // Retour sur la page après être allé lire ses e-mails : on retrouve l'écran « lien envoyé ».
+  const pending=store.get(LS_LINK_SENT);
+  const age=pending?Date.now()-pending.at:Infinity;
+  if(pending?.email&&age>=0&&age<LINK_PENDING_MAX){
+    showAuthSent(pending.email,{cooldown:Math.max(0,RESEND_DELAY-Math.floor(age/1000)),focus:false});
+  }else{
+    store.del(LS_LINK_SENT);
+    if(!$("#authSent").hidden)backToAuthForm(false);
+  }
 }
 function startResendCooldown(sec){
   const btn=$("#authResend");
@@ -1909,18 +2060,23 @@ function startResendCooldown(sec){
   let left=sec;
   const paint=()=>{btn.disabled=left>0;btn.textContent=left>0?`Renvoyer (${left} s)`:"Renvoyer le lien";};
   paint();
-  resendTick=setInterval(()=>{left--;paint();if(left<=0)clearInterval(resendTick);},1000);
+  if(left>0)resendTick=setInterval(()=>{left--;paint();if(left<=0)clearInterval(resendTick);},1000);
 }
-function showAuthSent(email){
+function showAuthSent(email,{cooldown=RESEND_DELAY,focus=true}={}){
   $("#sentEmail").textContent=email;
+  const mailbox=mailboxFor(email),link=$("#openMail");
+  link.hidden=!mailbox;
+  if(mailbox){link.href=mailbox.url;link.innerHTML=`Ouvrir ${escapeHtml(mailbox.label)}${ic("external","ic-sm")}`;}
   $("#authForm").hidden=true;
   const s=$("#authSent");s.hidden=false;
   s.style.animation="none";s.offsetHeight;s.style.animation="";   // relance l'animation au 2e envoi
   const wrap=s.querySelector(".check-wrap");wrap.innerHTML=wrap.innerHTML;
-  startResendCooldown(30);
+  startResendCooldown(cooldown);
+  if(focus)$("#sentTitle").focus();
 }
 function backToAuthForm(focus=true){
   clearInterval(resendTick);
+  store.del(LS_LINK_SENT);
   $("#authSent").hidden=true;$("#authForm").hidden=false;
   setAuthNote(AUTH_NOTE,false);
   if(focus){$("#authEmail").focus();$("#authEmail").select();}
@@ -1929,11 +2085,24 @@ async function sendMagicLink(resend=false){
   if(!sb){setAuthNote("Le service de connexion n'est pas disponible. Recharge la page.",true);return;}
   const input=$("#authEmail");
   const email=(resend?$("#sentEmail").textContent:input.value).trim();
-  if(!EMAIL_RE.test(email)){
-    setAuthNote("Entre une adresse e-mail valide, par exemple prenom@exemple.com.",true);
-    input.setAttribute("aria-invalid","true");input.focus();return;
+  if(!resend){
+    if(!EMAIL_RE.test(email)){
+      setAuthNote("Entre une adresse e-mail complète, par exemple prenom@exemple.com.",true);
+      input.setAttribute("aria-invalid","true");input.focus();return;
+    }
+    input.removeAttribute("aria-invalid");
+    // Domaine suspect : on propose la correction une fois ; un 2e envoi confirme l'adresse telle quelle.
+    if(renderSuggestion(email)){
+      suggestionDismissedFor=email;
+      setAuthNote("Vérifie ton adresse avant l'envoi : touche la suggestion ou renvoie pour garder celle-ci.",true);
+      return;
+    }
   }
-  input.removeAttribute("aria-invalid");
+  if(!navigator.onLine){
+    const msg="Tu es hors ligne. Connecte-toi à internet pour recevoir ton lien.";
+    if(resend)toast(msg);else setAuthNote(msg,true);
+    return;
+  }
   const btn=resend?$("#authResend"):$("#authSend");
   if(btn.disabled)return;
   btn.disabled=true;btn.innerHTML='<span class="spinner" aria-hidden="true"></span>Envoi en cours…';
@@ -1944,10 +2113,12 @@ async function sendMagicLink(resend=false){
   if(error){
     console.error("Lien de connexion :",error);
     const msg=authErrorMessage(error);
-    if(resend)toast(msg);else setAuthNote(msg,true);
+    if(resend){toast(msg);startResendCooldown(0);}else setAuthNote(msg,true);
     return;
   }
-  if(resend){toast("Nouveau lien envoyé.");startResendCooldown(30);}
+  store.set(LS_LAST_EMAIL,email);
+  store.set(LS_LINK_SENT,{email,at:Date.now()});
+  if(resend){toast("Nouveau lien envoyé. Utilise le plus récent.");startResendCooldown(RESEND_DELAY);}
   else showAuthSent(email);
 }
 
@@ -1963,6 +2134,7 @@ function teardown(){
   $("#whoami").textContent="";
 }
 function enterApp(){
+  store.del(LS_LINK_SENT);
   $("#authScreen").hidden=true;$("#app").hidden=false;
   $("#whoami").textContent=state.session.user.email||"";
   route({fromUser:false});
@@ -2106,6 +2278,21 @@ function bindUI(){
   $("#authForm").addEventListener("submit",e=>{e.preventDefault();sendMagicLink(false);});
   $("#authResend").addEventListener("click",()=>sendMagicLink(true));
   $("#authChange").addEventListener("click",()=>backToAuthForm());
+  $("#authEmail").addEventListener("input",()=>{
+    $("#authEmail").removeAttribute("aria-invalid");
+    if(!$("#authSuggest").hidden)renderSuggestion("");
+    if($("#authNote").classList.contains("is-error"))setAuthNote(AUTH_NOTE,false);
+  });
+  $("#authEmail").addEventListener("blur",()=>{
+    const v=$("#authEmail").value.trim();
+    if(EMAIL_RE.test(v))renderSuggestion(v);
+  });
+  $("#authSuggest").addEventListener("click",e=>{
+    const b=e.target.closest("[data-suggest]");if(!b)return;
+    $("#authEmail").value=b.dataset.suggest;
+    renderSuggestion("");setAuthNote(AUTH_NOTE,false);
+    $("#authSend").focus();
+  });
 
   // Robustesse : réseau, retour sur l'onglet, photos expirées
   window.addEventListener("online",()=>{state.sync.online=true;renderSync();if(state.session)loadItems({silent:true});});
