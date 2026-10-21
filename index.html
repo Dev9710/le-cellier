@@ -257,6 +257,7 @@
   .thumb{width:44px;height:44px;border-radius:var(--r-sm);overflow:hidden;display:grid;place-items:center;border:1px solid var(--line);background:var(--pine-soft);color:var(--pine);font-family:"Fraunces",serif;font-size:19px;padding:0}
   .thumb.fam-hygiene{background:#E2EAED;color:#3B5763}
   .thumb.fam-menager{background:var(--amber-soft);color:var(--amber-ink)}
+  .thumb.fam-electronique{background:#ECE7F0;color:#4F4160}
   .thumb.fam-autres{background:var(--sunk);color:var(--ink-2)}
   .thumb img{width:100%;height:100%;object-fit:cover;display:block}
   button.thumb{cursor:zoom-in}
@@ -486,7 +487,7 @@
         </div>
         <p class="eyebrow">Réserve · Provisions</p>
         <h1>Le Cellier</h1>
-        <p class="lead">Ton stock alimentaire, hygiène et ménager, synchronisé sur tous tes appareils.</p>
+        <p class="lead">Ton stock alimentaire, hygiène, ménager et électronique, synchronisé sur tous tes appareils.</p>
 
         <div class="auth-box">
           <form id="authForm" novalidate>
@@ -599,7 +600,7 @@
       <h2>À propos</h2>
       <div class="card">
         <div class="setting"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
-          <div class="s-body"><span class="s-title">Le Cellier</span><span class="s-desc">Ton stock alimentaire &amp; ménager, synchronisé en direct entre tes appareils. Tes données ne sont visibles que par toi.</span></div></div>
+          <div class="s-body"><span class="s-title">Le Cellier</span><span class="s-desc">Ton stock alimentaire, hygiène, ménager &amp; électronique, synchronisé en direct entre tes appareils. Tes données ne sont visibles que par toi.</span></div></div>
       </div>
 
       <div class="logout-zone">
@@ -803,7 +804,8 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const CATS={
   "Alimentaire":{slug:"alimentaire",short:"Alimentaire",color:"#33513F",subs:["Conserves","Féculents (pâtes, riz…)","Eau & boissons","Épicerie sèche","Condiments & sauces","Sucré & petit-déj","Café & thé","Surgelés","Frais","Autre"]},
   "Hygiène corporelle":{slug:"hygiene",short:"Hygiène",color:"#4A6B78",subs:["Douche & bain","Cheveux","Soins dentaires","Déodorants","Rasage & épilation","Soins de la peau","Protections hygiéniques","Autre"]},
-  "Ménager":{slug:"menager",short:"Ménager",color:"#B0722A",subs:["Nettoyage","Papier (PQ, essuie-tout)","Piles & bougies","Lessive","Autre"]}
+  "Ménager":{slug:"menager",short:"Ménager",color:"#B0722A",subs:["Nettoyage","Papier (PQ, essuie-tout)","Piles & bougies","Lessive","Autre"]},
+  "Appareils électroniques":{slug:"electronique",short:"Électronique",color:"#6B5A7A",subs:["Batteries externes","Énergie solaire","Radio & communication","Éclairage (lampes, frontales)","Câbles & chargeurs","Autre"]}
 };
 const OTHER_FAMILY="autres";   // regroupe les catégories absentes de CATS
 const UNITS=["pièce","boîte","paquet","bouteille","rouleau","kg","g","L","mL"];
@@ -1744,7 +1746,7 @@ function readForm(){
   const weight=wRaw?parseDecimal(wRaw):null;
   const invalid=[];
   if(!name){setFieldError($("#f-name"),$("#f-name-err"),"Donne un nom au produit.");invalid.push($("#f-name"));}
-  if(!family){showFormError("Choisis une famille : Alimentaire, Hygiène corporelle ou Ménager.");invalid.push($("#f-family input"));}
+  if(!family){showFormError("Choisis une famille : Alimentaire, Hygiène corporelle, Ménager ou Appareils électroniques.");invalid.push($("#f-family input"));}
   const pYear=Number($("#f-pyear").value)||null,pMonth=Number($("#f-pmonth").value)||null;
   if(pMonth&&!pYear){setFieldError($("#f-pyear"),$("#f-purchase-err"),"Choisis aussi l'année d'achat.");invalid.push($("#f-pyear"));}
   if(qty===null){setFieldError($("#f-qty"),$("#f-qty-err"),"Indique une quantité : 0 ou plus (ex. 2 ou 1,5).",$("#f-qty-wrap"));invalid.push($("#f-qty"));}
