@@ -655,7 +655,7 @@
 <button class="fab" id="fab" type="button" data-add hidden><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Ajouter</button>
 
 <!-- ============ Formulaire produit ============ -->
-<dialog id="productDlg" class="sheet" aria-labelledby="productTitle">
+<dialog id="productDlg" class="sheet" aria-labelledby="productTitle" data-keep-open>
   <form id="productForm" class="sheet-inner" novalidate>
     <div class="sheet-head">
       <h2 id="productTitle" tabindex="-1">Ajouter un produit</h2>
@@ -1034,10 +1034,11 @@ window.addEventListener("popstate",()=>{
   }
 });
 
+// data-keep-open : un clic sur le fond ne ferme pas la fenêtre (formulaire produit, pour ne pas perdre la saisie).
 function wireDialog(dlg){
   let downOnBackdrop=false;
   dlg.addEventListener("cancel",e=>{e.preventDefault();modals.find(m=>m.dlg===dlg)?.requestClose();});
-  dlg.addEventListener("pointerdown",e=>{downOnBackdrop=e.target===dlg;});
+  dlg.addEventListener("pointerdown",e=>{downOnBackdrop=e.target===dlg&&!dlg.hasAttribute("data-keep-open");});
   dlg.addEventListener("click",e=>{
     const entry=modals.find(m=>m.dlg===dlg);if(!entry)return;
     if(e.target.closest("[data-dismiss]")||(e.target===dlg&&downOnBackdrop))entry.requestClose();
