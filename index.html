@@ -203,29 +203,43 @@
   .alert.lv-week .alert-ic{background:var(--warn-soft);color:var(--warn-ink)}
   .alert.lv-out .alert-ic{background:var(--sunk);color:var(--ink-2)}
   .calm{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-md);background:var(--pine-soft);color:var(--pine);font-weight:500}
-  .summary{overflow:hidden}
-  .summary .total{display:flex;align-items:baseline;gap:8px;margin:0;padding:16px 16px 14px}
-  .summary .total .num{font-size:34px;line-height:1}
-  .summary .total span:last-child{color:var(--muted)}
-  /* Une carte par famille : grille en pointillés, motif quadrillé teinté par la famille (--fam). */
-  .fam-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px dashed var(--line-strong)}
-  .fam-card{position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:148px;padding:16px;text-decoration:none;color:var(--ink);transition:background-color .15s}
-  .fam-card:nth-child(odd){border-right:1px dashed var(--line-strong)}
-  .fam-card:nth-child(n+3){border-top:1px dashed var(--line-strong)}
-  .fam-card:last-child:nth-child(odd){grid-column:1/-1;border-right:none}
-  .fam-card:hover{background:#fff}
-  .fam-card:focus-visible{outline-offset:-3px}
-  .fc-pattern{position:absolute;top:0;right:0;width:75%;height:100%;pointer-events:none;-webkit-mask-image:linear-gradient(#000,transparent 85%);mask-image:linear-gradient(#000,transparent 85%)}
-  .fc-pattern>span{position:absolute;inset:0;background:linear-gradient(to right,transparent,color-mix(in srgb,var(--fam) 7%,transparent));-webkit-mask-image:radial-gradient(farthest-side at top right,#000,transparent);mask-image:radial-gradient(farthest-side at top right,#000,transparent)}
-  .fc-pattern svg{position:absolute;inset:0;width:100%;height:100%;stroke:color-mix(in srgb,var(--fam) 32%,transparent);fill:color-mix(in srgb,var(--fam) 14%,transparent)}
-  .fc-head{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-  .fc-head .ic{width:24px;height:24px;stroke-width:1.5;color:var(--fam)}
-  .fc-head .num{font-size:30px;line-height:1}
-  .fc-title{position:relative;margin-top:auto;padding-top:24px;font-weight:600;font-size:15.5px;line-height:1.25}
-  .fc-desc{position:relative;margin-top:4px;font-size:13px;line-height:1.35;color:var(--muted)}
-  .fc-desc span{white-space:nowrap}
-  .fc-desc .bad{color:var(--danger);font-weight:500}
-  .fc-desc .warn{color:var(--warn-ink);font-weight:500}
+  /* Tableau de bord « Ton stock » : grille bento (6 colonnes sur ordinateur, 2 sur téléphone). */
+  .bento{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:dense;gap:12px}
+  .bt{position:relative;display:flex;flex-direction:column;gap:14px;min-width:0;padding:18px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-1);color:var(--ink);text-decoration:none;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .2s var(--ease)}
+  a.bt:hover{border-color:var(--line-strong);box-shadow:var(--shadow-2);transform:translateY(-2px)}
+  .bt.b-total,.bt.b-soon,.bt.b-full{grid-column:span 2}
+  .bt-visual{flex:1;display:flex;min-height:0}
+  .bt-foot{display:flex;flex-direction:column;gap:3px}
+  .bt-title{font-family:"Fraunces",serif;font-size:19px;font-weight:500;line-height:1.2;letter-spacing:-.01em;margin:0}
+  .bt-desc{font-size:13.5px;line-height:1.4;color:var(--muted);margin:0}
+  .bt-desc span{white-space:nowrap}
+  .bt-desc .bad{color:var(--danger);font-weight:500}
+  .bt-desc .warn{color:var(--warn-ink);font-weight:500}
+  /* Tuile famille */
+  .b-fam .bt-visual{align-items:flex-start;justify-content:space-between;gap:8px}
+  .bt-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--fam) 12%,var(--card));color:var(--fam)}
+  .bt-icon .ic{width:24px;height:24px;stroke-width:1.6}
+  .bt-count{font-size:40px;line-height:1}
+  /* Tuile total */
+  .b-total .bt-visual{flex-direction:column;justify-content:center;gap:16px}
+  .bt-big{display:flex;align-items:baseline;gap:10px;margin:0;color:var(--muted)}
+  .bt-big .num{font-size:64px;line-height:.9;color:var(--ink)}
+  .bt-bar{display:flex;gap:3px;height:10px}
+  .bt-bar span{border-radius:3px;min-width:6px}
+  .bt-legend{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px;font-size:14px;color:var(--ink-2)}
+  .bt-legend li{display:flex;align-items:center;gap:8px;min-width:0}
+  .bt-legend .num{margin-left:auto;color:var(--ink)}
+  /* Tuile prochaines péremptions */
+  .b-soon .bt-visual{flex-direction:column}
+  .bt-list{list-style:none;margin:0;padding:0}
+  .bt-list li{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 0}
+  .bt-list li+li{border-top:1px dashed var(--line-strong)}
+  .bt-list .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+  .bt-list .d{font-size:13px;white-space:nowrap;color:var(--ink-2)}
+  .bt-list .lv-expired{color:var(--danger);font-weight:500}
+  .bt-list .lv-today,.bt-list .lv-week{color:var(--warn-ink);font-weight:500}
+  .bt-none{margin:auto 0;color:var(--muted);font-size:14px}
+  @media (prefers-reduced-motion:reduce){.bt{transition:none}a.bt:hover{transform:none}}
   .recent{list-style:none;margin:0;padding:0}
   .recent li+li{border-top:1px solid var(--line)}
   .recent button{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:8px 14px;border:none;background:none;text-align:left}
@@ -426,7 +440,16 @@
     .fab{display:none}
     .add-desktop{display:inline-flex}
     .toast{bottom:24px}
-    .home-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 var(--s5);align-items:start}
+    .home-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"stock stock" "alerts recent";gap:0 var(--s5);align-items:start}
+    .home-grid>.h-alerts{grid-area:alerts}
+    .home-grid>.h-stock{grid-area:stock}
+    .home-grid>.h-recent{grid-area:recent}
+    .bento{grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:minmax(176px,auto);grid-auto-flow:dense;gap:16px}
+    .bt{padding:22px}
+    .bt.b-total,.bt.b-soon{grid-column:span 2;grid-row:span 2}
+    .bt.b-fam{grid-column:span 2}
+    .bt.b-fam.b-wide{grid-column:span 3}
+    .bt.b-full{grid-column:1/-1}
   }
   @media (hover:hover){ .row-main:hover .row-name{text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:3px} }
   @media (prefers-reduced-motion:reduce){
@@ -1433,14 +1456,6 @@ function loadErrorHtml(){
 const addFirstBtn=`<button class="btn btn-primary" type="button" data-add>${ic("plus","ic-sm")}Ajouter un premier produit</button>`;
 
 /* ---------- Accueil ---------- */
-// Motif quadrillé des cartes de famille : 5 cases pleines, placées toujours au même endroit pour une famille donnée.
-function famPattern(slug){
-  let seed=[...slug].reduce((a,ch)=>(a*31+ch.charCodeAt(0))>>>0,7);
-  const rnd=n=>{seed=(seed*1103515245+12345)>>>0;return (seed>>>16)%n;};
-  const squares=Array.from({length:5},()=>`<rect width="19" height="19" x="${(rnd(6)+1)*18}" y="${rnd(5)*18}" stroke-width="0"/>`).join("");
-  return `<span class="fc-pattern" aria-hidden="true"><span><svg><defs><pattern id="fp-${slug}" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M.5 18V.5H18" fill="none"/></pattern></defs><rect width="100%" height="100%" stroke-width="0" fill="url(#fp-${slug})"/>${squares}</svg></span></span>`;
-}
-
 function renderHome(){
   const h=new Date().getHours();
   $("#homeTitle").textContent=h>=5&&h<18?"Bonjour":"Bonsoir";
@@ -1464,18 +1479,41 @@ function renderHome(){
     ?`<div class="alerts">${alerts.join("")}</div>`
     :`<div class="calm">${ic("check")}<span>Rien à surveiller : aucun produit périmé, épuisé ou à consommer d'ici ${EXPIRY_WEEK} jours.</span></div>`;
 
-  const fams=familiesPresent(c).map(f=>{
-    const n=c.families[f]||0,fs=c.famStats[f]||{},slug=familySlug(f);
-    const bits=[];
+  // Tableau de bord : total, une tuile par famille, prochaines péremptions.
+  const fams=familiesPresent(c);
+  const famStatus=f=>{
+    const n=c.families[f]||0,fs=c.famStats[f]||{},bits=[];
     if(fs.expired)bits.push(["bad",plural(fs.expired,"périmé","périmés")]);
     if(fs.week)bits.push(["warn",`${fs.week} à consommer`]);
     if(fs.out)bits.push(["",plural(fs.out,"épuisé","épuisés")]);
-    const desc=bits.length?bits.map(([cls,t])=>`<span class="${cls}">${t}</span>`).join(" · "):(n?"Tout est en ordre":"Aucun produit");
-    const label=`${familyLabel(f)} : ${plural(n,"produit","produits")}${bits.length?", "+bits.map(b=>b[1]).join(", "):""}`;
-    return `<a class="fam-card" href="#/stock?famille=${slug}" style="--fam:${familyColor(f)}" aria-label="${escapeHtml(label)}">${famPattern(slug)}
-      <span class="fc-head">${ic(CATS[f]?`fam-${slug}`:"box")}<span class="num">${n}</span></span>
-      <span class="fc-title">${escapeHtml(familyLabel(f))}</span><span class="fc-desc">${desc}</span></a>`;
-  }).join("");
+    return {
+      html:bits.length?bits.map(([cls,t])=>`<span class="${cls}">${t}</span>`).join(" · "):(n?"Tout est en ordre":"Aucun produit"),
+      text:`${familyLabel(f)} : ${plural(n,"produit","produits")}${bits.length?", "+bits.map(b=>b[1]).join(", "):""}`
+    };
+  };
+  // Comme la grille d'origine : les familles 3 et 4 prennent une demi-ligne, « Autres » toute la ligne.
+  const famTiles=fams.map((f,i)=>{
+    const st=famStatus(f),slug=familySlug(f);
+    const size=f===OTHER_FAMILY?" b-full":i>=2?" b-wide":"";
+    return `<a class="bt b-fam${size}" href="#/stock?famille=${slug}" style="--fam:${familyColor(f)}" aria-label="${escapeHtml(st.text)}">
+      <span class="bt-visual"><span class="bt-icon">${ic(CATS[f]?`fam-${slug}`:"box")}</span><span class="num bt-count">${c.families[f]||0}</span></span>
+      <span class="bt-foot"><span class="bt-title">${escapeHtml(familyLabel(f))}</span><span class="bt-desc">${st.html}</span></span></a>`;
+  });
+  const urgent=c.expired+c.week+c.out;
+  const totalTile=`<div class="bt b-total">
+      <div class="bt-visual"><p class="bt-big"><span class="num">${c.total}</span>produit${c.total>1?"s":""}</p>
+        <span class="bt-bar" aria-hidden="true">${fams.filter(f=>c.families[f]).map(f=>`<span style="flex:${c.families[f]};background:${familyColor(f)}"></span>`).join("")}</span>
+        <ul class="bt-legend">${fams.map(f=>`<li><span class="dot" style="background:${familyColor(f)}" aria-hidden="true"></span>${escapeHtml(familyShort(f))}<span class="num">${c.families[f]||0}</span></li>`).join("")}</ul></div>
+      <div class="bt-foot"><h3 class="bt-title">Répartition par famille</h3><p class="bt-desc">${urgent?`${plural(urgent,"produit","produits")} à surveiller`:"Rien à surveiller"}</p></div></div>`;
+  const soonList=state.items.filter(it=>!isOut(it)&&daysUntil(it.expiry)!==null)
+    .sort((a,b)=>daysUntil(a.expiry)-daysUntil(b.expiry)).slice(0,4);
+  const soonTile=`<a class="bt b-soon" href="#/a-consommer">
+      <span class="bt-visual">${soonList.length
+        ?`<ul class="bt-list">${soonList.map(it=>{const e=expiryInfo(it.expiry);return `<li><span class="dot" style="background:${familyColor(familyOf(it))}" aria-hidden="true"></span><span class="n">${escapeHtml(it.name)}</span><span class="d lv-${e.level}">${escapeHtml(e.level==="ok"?fmtDate(it.expiry):e.short)}</span></li>`;}).join("")}</ul>`
+        :`<span class="bt-none">Aucun produit daté pour l'instant.</span>`}</span>
+      <span class="bt-foot"><span class="bt-title">Prochaines péremptions</span><span class="bt-desc">Les produits à consommer en premier</span></span></a>`;
+  // Ordre de la grille d'origine : haute, moyenne, haute, moyenne, large, large.
+  const bento=[totalTile,famTiles[0],soonTile,...famTiles.slice(1)].filter(Boolean).join("");
 
   const recent=[...state.items].sort((a,b)=>String(b.created_at||"").localeCompare(String(a.created_at||""))).slice(0,5);
   const recentHtml=recent.map(it=>`<li><button type="button" data-open="${it.id}" data-key="${it.id}:recent">
@@ -1484,13 +1522,9 @@ function renderHome(){
       <span class="r-qty">${isOut(it)?"Épuisé":escapeHtml(qtyText(it))}</span></button></li>`).join("");
 
   body.innerHTML=`<div class="home-grid">
-    <div>
-      <section class="section" aria-labelledby="hAlerts"><h2 class="section-title" id="hAlerts">À surveiller</h2>${alertsHtml}</section>
-      <section class="section" aria-labelledby="hStock"><h2 class="section-title" id="hStock">Ton stock</h2>
-        <div class="card summary"><p class="total"><span class="num">${c.total}</span><span>produit${c.total>1?"s":""}</span></p><div class="fam-grid">${fams}</div></div>
-      </section>
-    </div>
-    <section class="section" aria-labelledby="hRecent"><h2 class="section-title" id="hRecent">Ajoutés récemment<a class="link-more" href="#/stock?tri=ajout">Tout voir${ic("chevron","ic-xs")}</a></h2>
+    <section class="section h-alerts" aria-labelledby="hAlerts"><h2 class="section-title" id="hAlerts">À surveiller</h2>${alertsHtml}</section>
+    <section class="section h-stock" aria-labelledby="hStock"><h2 class="section-title" id="hStock">Ton stock</h2><div class="bento">${bento}</div></section>
+    <section class="section h-recent" aria-labelledby="hRecent"><h2 class="section-title" id="hRecent">Ajoutés récemment<a class="link-more" href="#/stock?tri=ajout">Tout voir${ic("chevron","ic-xs")}</a></h2>
       <ul class="recent card">${recentHtml}</ul>
     </section>
   </div>`;
